@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton-svelte';
+
+/* omux Warm/Pragmatic house theme (vendored from tinyland-inc/site.scaffold). */
+@import './lib/styles/themes/omux.css';
+
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+
+/* Dark mode via the data-mode attribute set synchronously in src/app.html. */
+@custom-variant dark (&:where([data-mode='dark'], [data-mode='dark'] *));
+
+html {
+	scroll-behavior: smooth;
+}
+
+/* Long-form prose rhythm for the article body. */
+.prose-body :where(h2) {
+	scroll-margin-top: 5rem;
+}

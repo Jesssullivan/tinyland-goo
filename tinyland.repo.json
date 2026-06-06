@@ -1,0 +1,46 @@
+{
+	"$schema": "https://raw.githubusercontent.com/tinyland-inc/site.scaffold/main/docs/schemas/tinyland-repo-manifest.schema.json",
+	"schema_version": 1,
+	"repo": {
+		"name": "tinyland-goo",
+		"github": "Jesssullivan/tinyland-goo",
+		"domain": "jesssullivan.github.io/tinyland-goo",
+		"description": "UV-reactive, strontium-aluminate-infused 3D-printer bed glue — recipe, weight scaler, UV coverage-sensing BOM, and a Klipper pre-print gate."
+	},
+	"taxonomy": {
+		"primary_role": "static-spoke",
+		"layers": ["org-wide-repo-contract", "static-spoke"]
+	},
+	"contracts": {
+		"agent_contract": "AGENTS.md",
+		"just": "Justfile",
+		"nix": "none",
+		"github_actions": ".github/workflows",
+		"secrets_scan": "gitleaks",
+		"conformance": "just conformance"
+	},
+	"boundaries": {
+		"owns_runtime_backend": false,
+		"owns_auth": false,
+		"owns_payments": false,
+		"owns_activitypub_delivery": false,
+		"owns_live_broker_fetch": false,
+		"owns_static_projection_ingest": false,
+		"owns_gitops_apply": false,
+		"owns_cloudflare_mutation": false,
+		"owns_bazel_module_authority": false
+	},
+	"authorities": {
+		"content_authority": "self",
+		"ci_templates": "tinyland-inc/ci-templates",
+		"cache_rbe_authority": "tinyland-inc/GloriousFlywheel",
+		"package_registry": "tinyland-inc/bazel-registry"
+	},
+	"supply_chain": {
+		"sbom": {
+			"status": "not-required",
+			"formats": ["CycloneDX JSON", "SPDX JSON"],
+			"notes": "Leaf static spoke; SBOM not required. Adopt the scaffold `just sbom` recipe if this grows dependencies worth attesting."
+		}
+	}
+}

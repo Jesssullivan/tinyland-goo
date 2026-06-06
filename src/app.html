@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-theme="omux" data-mode="light">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			name="description"
+			content="UV-reactive, strontium-aluminate-infused 3D-printer bed glue: a stronger-than-Frank recipe, a weight-based batch scaler, an off-the-shelf UV coverage-sensing BOM, and a Klipper pre-print gate."
+		/>
+		<meta name="color-scheme" content="light dark" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
+		<script>
+			// FOUC prevention: apply data-mode + data-theme before Svelte mounts.
+			(function () {
+				try {
+					var stored = localStorage.getItem('color-mode');
+					var prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+					var mode = stored === 'light' || stored === 'dark' ? stored : prefers ? 'dark' : 'light';
+					document.documentElement.setAttribute('data-mode', mode);
+					document.documentElement.style.colorScheme = mode;
+				} catch (e) {
+					// localStorage unavailable — keep defaults.
+				}
+			})();
+		</script>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
