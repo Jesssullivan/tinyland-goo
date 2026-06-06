@@ -53,6 +53,24 @@ PVP:PVA ≈ 77:23.
 **Watch out:** bare strontium aluminate hydrolyzes in water and stops glowing — use a
 silica/fluoride-**coated/encapsulated** grade. Don't go anhydrous (PVA needs water).
 
+## In a pinch (on-hand chemicals, 1 oz)
+
+A simpler derivation for an automated applicator on **less mission-critical** printers,
+from common stock only — no K90, no boric acid, no coated phosphor. Still beats Frank's
+via the PEG/PEO tack lever + slightly higher solids. Scales 1/2/4 oz.
+
+| Ingredient | 1 oz (g) | Role |
+| --- | ---: | --- |
+| PVP-40 (K-30 class) | 2.80 | Backbone (same PVP grade as Frank's) |
+| PVA lab powder | 1.10 | Toughness (PVP:PVA ≈ 72:28) |
+| PEG/PEO powder (heavy MW) | 0.50 | Tackifier — the strength edge; potent & stringy, start low |
+| Strontium aluminate (plain) | 1.00 | UV indicator — uncoated, mix small & use fresh |
+| 91% isopropyl alcohol | 16.00 | Carrier (kept IPA-heavy to slow hydrolysis) |
+| Distilled water | 6.95 | Dissolves the PVA (carrier ≈ 63:37 IPA:water) |
+
+Adhesive solids ≈ 15.5%. Uncoated phosphor fades with water exposure → use fresh;
+heavy PEO strings → cut it if the applicator cobwebs.
+
 ## How coverage sensing works
 
 `SrAl₂O₄:Eu,Dy` excites at ~365 nm and emits green ~520 nm. Flood the bed with 365 nm
