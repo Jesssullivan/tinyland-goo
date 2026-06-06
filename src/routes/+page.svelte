@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GlueScaler from '$lib/components/GlueScaler.svelte';
+	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
 
 	const repo = 'https://github.com/jesssullivan/tinyland-goo/blob/main';
 
@@ -154,6 +155,25 @@
 		<li>Stir in the boric stock <em>last</em>, slowly, to avoid local gel lumps.</li>
 		<li>Disperse the coated phosphor just before use — it’s dense and settles. Apply thin, even coats.</li>
 	</ol>
+
+	<h2 class="mt-12 text-2xl font-semibold">In a pinch: a simpler PVP-40 derivation</h2>
+	<p class="mt-3">
+		The recipe above wants PVP-K90, an encapsulated phosphor, and a boric-acid
+		crosslink — specialized stock. While that’s in the mail, here’s a derivation that
+		uses only common, on-hand chemicals (PVP-40, PVA lab powder, 91% IPA, distilled
+		water, a heavy PEG/PEO powder, and plain strontium aluminate). It’s meant for an
+		automated applicator on <strong>less mission-critical</strong> printers, and it scales
+		to 1/2/4&nbsp;oz mini batches.
+	</p>
+	<p class="mt-3">
+		It still beats Frank’s: same PVP/PVA backbone, but with a touch more adhesive solids
+		and a <strong>PEG/PEO tackifier</strong> — the documented bond-strength lever — instead of the
+		K90 + crosslink combo. Trade-offs: the plain (uncoated) phosphor hydrolyzes in the
+		aqueous carrier over time, so mix small and use fresh; and heavy PEO is stringy, so
+		keep it low or your applicator will cobweb. Both glues read identically under UV.
+	</p>
+
+	<GlueScalerPinch />
 
 	<h2 class="mt-12 text-2xl font-semibold">Seeing coverage: the sensor</h2>
 	<p class="mt-3">
