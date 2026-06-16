@@ -175,6 +175,93 @@
 
 	<GlueScalerPinch />
 
+	<h2 class="mt-12 text-2xl font-semibold">Mixing, working time &amp; gear</h2>
+	<p class="mt-3">
+		Good news: at 1–8&nbsp;oz this needs almost no equipment. Only one step wants heat —
+		dissolving the PVA — and the high-shear gear you might reach for is the one thing to
+		avoid, because it chops up the high-MW PEO.
+	</p>
+
+	<h3 class="mt-8 text-xl font-semibold">Temperature, per step</h3>
+	<div class="not-prose my-4 overflow-x-auto">
+		<table class="w-full text-sm">
+			<thead>
+				<tr class="text-left text-surface-600 dark:text-surface-400">
+					<th class="py-1 pr-3 font-medium">Step</th>
+					<th class="py-1 font-medium">Temperature</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="border-t border-surface-300 dark:border-surface-700">
+					<td class="py-1 pr-3">Dissolve PVA in the water phase</td>
+					<td class="py-1">45–55&nbsp;°C (88% grade) · ~85–90&nbsp;°C then cool if your lab powder is fully hydrolyzed</td>
+				</tr>
+				<tr class="border-t border-surface-300 dark:border-surface-700">
+					<td class="py-1 pr-3">PVP (K90 / PVP-40) into alcohol</td>
+					<td class="py-1">room temp — K90 is just slow; give it time, no heat</td>
+				</tr>
+				<tr class="border-t border-surface-300 dark:border-surface-700">
+					<td class="py-1 pr-3">PEG-400 / heavy PEO</td>
+					<td class="py-1">room temp — keep PEO cool, pre-wet with a little alcohol to avoid fish-eyes</td>
+				</tr>
+				<tr class="border-t border-surface-300 dark:border-surface-700">
+					<td class="py-1 pr-3">Combine the phases</td>
+					<td class="py-1">cool to &lt;40&nbsp;°C first — the carrier is flammable; never combine hot</td>
+				</tr>
+				<tr class="border-t border-surface-300 dark:border-surface-700">
+					<td class="py-1 pr-3">Boric stock + phosphor</td>
+					<td class="py-1">room temp, added last (boric slowly, to avoid gel lumps)</td>
+				</tr>
+			</tbody>
+		</table>
+		<p class="mt-1 text-xs text-surface-500">Mix away from open flame.</p>
+	</div>
+
+	<h3 class="mt-8 text-xl font-semibold">Working time</h3>
+	<ul class="mt-3 list-disc space-y-2 pl-6">
+		<li>
+			<strong>Batch shelf life</strong> — the main recipe keeps weeks–months sealed (cap it;
+			alcohol evaporation is the enemy). The in-a-pinch glue’s uncoated phosphor fades in
+			days — mix small, use fresh.
+		</li>
+		<li>
+			<strong>In-applicator settling</strong> — the phosphor (ρ≈3.6) resettles in minutes.
+			Don’t fight it with a bigger mixer; use a sealable bottle and shake before each use
+			(it resuspends in seconds), or draw from a stirred reservoir.
+		</li>
+		<li>
+			<strong>Open / flash time</strong> — a thin coat flashes off in seconds on a hot bed,
+			~1–2&nbsp;min at room temp. The main recipe’s trace borate makes it mildly
+			shear-thinning — thins when pumped or brushed, firms at rest, which is handy for an
+			applicator.
+		</li>
+	</ul>
+
+	<h3 class="mt-8 text-xl font-semibold">Gear</h3>
+	<ol class="mt-3 list-decimal space-y-2 pl-6">
+		<li>
+			<strong>Hotplate magnetic stirrer</strong> — the one buy worth making. Heat + stir for
+			the PVA and PVP steps; with a temperature probe you can hold ~50&nbsp;°C. Handles the
+			main recipe end to end.
+		</li>
+		<li>
+			<strong>A drill + small paddle, low rpm</strong> — for the final viscous blend, especially
+			the pinch recipe’s heavy PEO, which turns the mix stringy enough to stall a magnetic
+			stir bar. A minute at ~100–300&nbsp;rpm is plenty.
+		</li>
+		<li>
+			<strong>Overhead paddle mixer</strong> — suitable but <em>not needed</em> at these volumes;
+			worth it only if you batch often or scale past ~8&nbsp;oz. If you get one, use an
+			anchor/paddle (low-shear) impeller, not a disperser disc.
+		</li>
+	</ol>
+	<p class="mt-3">
+		<strong>Avoid</strong> immersion blenders, homogenizers, and Cowles dispersers — they
+		degrade the high-MW PEO and whip in bubbles that won’t leave a viscous solution. Mix
+		gently, let it degas at rest before bottling, and use alcohol-safe vessels
+		(glass/HDPE/PP/PTFE — not polystyrene).
+	</p>
+
 	<h2 class="mt-12 text-2xl font-semibold">Seeing coverage: the sensor</h2>
 	<p class="mt-3">
 		Flood the bed with 365&nbsp;nm UV and read the ~520&nbsp;nm green that comes back. The
