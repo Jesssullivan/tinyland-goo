@@ -71,6 +71,36 @@ via the PEG/PEO tack lever + slightly higher solids. Scales 1/2/4 oz.
 Adhesive solids ≈ 15.5%. Uncoated phosphor fades with water exposure → use fresh;
 heavy PEO strings → cut it if the applicator cobwebs.
 
+## Mixing, working time & gear
+
+At 1–4 oz this needs almost no equipment; only the PVA step wants heat, and high-shear
+gear is the thing to avoid (it chops the high-MW PEO).
+
+**Temperature, per step**
+
+| Step | Temp |
+| --- | --- |
+| Dissolve PVA in the water phase | 45–55 °C (88% grade); ~85–90 °C then cool if fully hydrolyzed |
+| PVP (K90 / PVP-40) in alcohol | room temp |
+| PEG-400 / heavy PEO | room temp (keep PEO cool; pre-wet with alcohol) |
+| Combine the phases | cool to <40 °C first — carrier is flammable |
+| Boric stock + phosphor | room temp, added last |
+
+**Working time**
+
+- Batch shelf life: main ≈ weeks–months sealed; in-a-pinch (uncoated phosphor) ≈ days.
+- In-applicator settling: phosphor resettles in minutes → sealable bottle + shake before use, or a stirred reservoir.
+- Open/flash time: seconds on a hot bed, ~1–2 min at room temp. Main recipe is mildly shear-thinning (trace borate).
+
+**Gear**
+
+1. **Hotplate magnetic stirrer** — the one buy; heat + stir, hold ~50 °C. Covers the main recipe end to end.
+2. **Drill + small paddle, low rpm (~100–300)** — for the viscous/elastic blend (esp. the pinch recipe's heavy PEO, which stalls a stir bar).
+3. **Overhead paddle mixer** — suitable but not needed at these volumes; only if scaling past ~8 oz, with an anchor/paddle (not a disperser disc).
+
+Avoid high-shear blenders/homogenizers (PEO chain scission + trapped air). Mix gently, degas
+at rest, use alcohol-safe vessels (glass/HDPE/PP/PTFE).
+
 ## How coverage sensing works
 
 `SrAl₂O₄:Eu,Dy` excites at ~365 nm and emits green ~520 nm. Flood the bed with 365 nm
