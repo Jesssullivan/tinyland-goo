@@ -5,7 +5,7 @@
 		"name": "tinyland-goo",
 		"github": "Jesssullivan/tinyland-goo",
 		"domain": "jesssullivan.github.io/tinyland-goo",
-		"description": "UV-reactive, strontium-aluminate-infused 3D-printer bed glue — recipe, weight scaler, UV coverage-sensing BOM, and a Klipper pre-print gate."
+		"description": "Tinyland static lab notebook for UV-reactive 3D-printer bed glue plus paraffin wax research tracks for bike chain wax and hair removal wax."
 	},
 	"taxonomy": {
 		"primary_role": "static-spoke",

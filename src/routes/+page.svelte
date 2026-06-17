@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import GlueScaler from '$lib/components/GlueScaler.svelte';
 	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
 
@@ -90,6 +91,27 @@
 		strontium-aluminate phosphor so a 365&nbsp;nm flash shows exactly where you laid it down —
 		and a Klipper macro that refuses to print until the bed is covered.
 	</p>
+
+	<h2 class="mt-12 text-2xl font-semibold">Adjacent wax tracks</h2>
+	<p class="mt-3">
+		The same lab-note structure now branches into paraffin wax experiments: one track for
+		low-friction bicycle chain wax and ultrasonic wax emulsions, and one track for depilatory
+		wax formulation with peel-force and skin-safety gates.
+	</p>
+	<div class="not-prose mt-4 grid gap-3 md:grid-cols-2">
+		<a class="card block p-4 preset-outlined-surface-500" href={`${base}/chain-wax`}>
+			<span class="block text-lg font-semibold">Bike chain wax</span>
+			<span class="mt-1 block text-sm text-surface-600 dark:text-surface-400">
+				PFAS-free additive screens, hot immersion, ultrasonic emulsion, and wear methodology.
+			</span>
+		</a>
+		<a class="card block p-4 preset-outlined-surface-500" href={`${base}/hair-removal-wax`}>
+			<span class="block text-lg font-semibold">Hair removal wax</span>
+			<span class="mt-1 block text-sm text-surface-600 dark:text-surface-400">
+				Rosinate/paraffin hard and strip wax pilots with bench tests and allergy constraints.
+			</span>
+		</a>
+	</div>
 
 	<h2 class="mt-12 text-2xl font-semibold">The starting point: Frank’s Instagoo</h2>
 	<p class="mt-3">

@@ -1,14 +1,15 @@
 # tinyland-goo
 
-UV-reactive, strontium-aluminate-infused 3D-printer **bed glue** that is stronger
-than [Frank's "Instagoo"](https://goo.by.frank.af/) — plus an off-the-shelf UV
-**coverage sensor** and a **Klipper pre-print gate** that won't print on a
-bare bed.
+Tinyland static lab notebook for UV-reactive 3D-printer **bed glue** and adjacent
+paraffin **wax** experiments. The original page covers a stronger-than-Frank
+[Instagoo](https://goo.by.frank.af/) recipe, an off-the-shelf UV **coverage sensor**,
+and a **Klipper pre-print gate** that won't print on a bare bed. The new wax pages
+cover bike chain wax additives / ultrasonic emulsions and hair-removal wax formulation.
 
 A static SvelteKit SPA (built from the Tinyland
 [site.scaffold](https://github.com/tinyland-inc/site.scaffold)), published to
-GitHub Pages at **https://jesssullivan.github.io/tinyland-goo/**. The page carries
-an interactive, weight-based batch scaler; this README is the source-of-record for
+GitHub Pages at **https://jesssullivan.github.io/tinyland-goo/**. The pages carry
+interactive, weight-based batch scalers; this README is the source-of-record for
 hardware and citations.
 
 ## Quick start
@@ -26,8 +27,15 @@ just preview   # local root preview
 
 | Path | What |
 | --- | --- |
-| `src/routes/+page.svelte` | The article (recipe, BOM, gate, safety) |
+| `src/routes/+page.svelte` | UV bed-glue article (recipe, BOM, gate, safety) |
+| `src/routes/chain-wax/+page.svelte` | Bike chain wax additive + ultrasonic emulsion research |
+| `src/routes/hair-removal-wax/+page.svelte` | Depilatory wax formulation research |
 | `src/lib/components/GlueScaler.svelte` | Weight-based batch scaler (by-weight, 0.01 g) |
+| `src/lib/components/GlueScalerPinch.svelte` | Simplified on-hand bed-glue derivation |
+| `src/lib/components/ChainWaxHotMeltScaler.svelte` | Hot-melt chain wax screening scaler |
+| `src/lib/components/ChainWaxEmulsionScaler.svelte` | Ultrasonic chain wax emulsion scaler |
+| `src/lib/components/DepilatoryHardWaxScaler.svelte` | Hard/no-strip hair-removal wax scaler |
+| `src/lib/components/DepilatoryStripWaxScaler.svelte` | Strip hair-removal wax scaler |
 | `klipper/coverage_gate.cfg` | `PRINT_START` + `_COVERAGE_GATE` macros |
 | `klipper/coverage_gate.py` | Host script: AS7341 → Moonraker `SAVE_VARIABLE` |
 
@@ -108,13 +116,73 @@ UV; glued area glows green, bare bed stays dark. The **AS7341** F4 (515 nm) / F5
 channels straddle the peak and its filters reject 365 nm, so a single-point read often
 needs no separate filter. Baseline the bare bed once; coverage is the green rise above it.
 
+## Bike chain wax research
+
+Route: `/chain-wax`
+
+The chain-wax page treats paraffin lubrication as a measured tribology problem:
+
+- Hot immersion first, because wax must reach the pin/roller/plate interfaces before it solidifies.
+- PFAS-free additive screens centered on WS₂, hBN, and MoS₂ controls, with low-dose graphene/rGO as an advanced axis.
+- Ultrasonic paraffin wax-in-water emulsion as a drip/top-up experiment, not a claimed replacement for immersion until penetration and contamination durability are measured.
+- Bicycle-specific wear testing inspired by Zero Friction Cycling: fixed load, fixed intervals, fixed contamination dose, and no chain cleaning during the main block.
+
+Key calibrations from a deeper paper review:
+
+- In a clean rig, lube choice barely moves watts — chain efficiency runs ~80.9–98.6% set by tension and sprocket size, not lubrication (Spicer 2001). The wax advantage is contamination and wear: top waxes wear ~2.6–14.7× fewer chains over a 5000 km contamination test (Zero Friction Cycling).
+- Additive doses are lower than folklore: the measured MoS₂ oil-additive optimum is ~0.01 wt% (not the 0.1–0.7 wt% homebrew band), WS₂ at ~1–1.5 wt% cuts COF ~29–30%, and graphene/rGO optima sit near ~0.05 wt% and are dispersion-limited.
+- The verified ultrasonic paraffin nanoemulsion (160.9 nm, 15 min) was stabilized by anionic SDS, not a Tween/Span blend; the required HLB for a fluid O/W paraffin is a band, ~10–13.5.
+
+The hot-melt scaler starts with a 100 g screen:
+
+| Ingredient | 100 g (g) | Role |
+| --- | ---: | --- |
+| Fully refined paraffin wax | 91.50 | Low-oil crystalline base |
+| Microcrystalline wax | 4.00 | Toughness / adhesion |
+| Fischer-Tropsch or PE wax | 2.00 | Hardness / melt-point modifier |
+| Tungsten disulfide | 1.00 | PFAS-free lamellar solid lubricant |
+| Hexagonal boron nitride | 1.00 | Inert lamellar solid-lube comparison |
+| Molybdenum disulfide | 0.50 | Legacy Friction Facts-style control |
+
+The emulsion scaler starts with a 100 g, 23.75 wt% wax/additive-solids prototype using
+paraffin, microcrystalline wax, FT/PE wax, a low solid-lube load, an HLB ~11–13 nonionic
+emulsifier blend, an anionic SDS/SDBS lane (the verified nanoemulsion's actual stabilizer),
+and distilled water. It is meant for droplet
+size, creaming, residue, penetration, and water-sensitivity screens before road use.
+
+## Hair-removal wax research
+
+Route: `/hair-removal-wax`
+
+The depilatory-wax page treats wax as a hot-melt peel adhesive, not a candle:
+
+- Hair grip comes primarily from rosin/rosinate or synthetic hydrocarbon resin tackifiers.
+- Paraffin and microcrystalline wax tune body, set speed, hardness, and peel behavior.
+- EVA/elastomer content controls cohesive no-strip peel.
+- Oil/CCT plasticizer controls spread, harshness, and residue.
+- Rosin/colophony allergy, burn margin, residue, delayed irritation, and hygiene are gating metrics, not side notes.
+
+Two 100 g pilots are included: a hard/no-strip wax and a cloth-strip wax. Both are
+bench-first formulas; the page explicitly gates any human testing behind temperature
+measurement, patch testing, tiny forearm trials, and stop criteria.
+
+Key calibrations from a deeper paper review: real hard-wax application runs ~51–57 °C (the
+page's 42–52 °C is a conservative, safety-driven low end); colophony contact-allergy prevalence
+pools at 3.54% across 459,757 patients (Karimian 2026), and the standard 20% colophony patch
+test can miss the glyceryl/ester-modified rosin allergens (GMA, maleopimaric acid) actually
+present in waxes; resin tack has an optimum (peel rises, then falls past ~40 wt% resin), so
+"more rosin" is not "stickier".
+
 ## Safety
 
 Flammable alcohol carrier · phosphor dust (N95/P2 + eye protection when weighing) ·
 boric acid (reproductive hazard if ingested) · 365 nm UV-A eye/skin hazard (enclose;
-pulse during read only).
+pulse during read only) · hot wax burns · solid-lube powder inhalation · depilatory
+rosin/colophony allergy and skin trauma.
 
 ## Sources
+
+### UV bed glue
 
 - Frank's Instagoo — https://goo.by.frank.af/
 - Homebrew PVP/PVA "Super Goop" (DrGhetto / Hackaday) — https://hackaday.com/2022/12/06/homebrew-3d-printer-goop-promises-better-bed-adhesion/
@@ -133,6 +201,51 @@ pulse during read only).
 - Thorlabs FGL495 longpass / FBH520-10 bandpass — https://www.thorlabs.com/
 - Klipper Command Templates (`action_raise_error`, `save_variables`) — https://www.klipper3d.org/Command_Templates.html
 - `gcode_shell_command` (KIAUH) — https://github.com/dw-0/kiauh/blob/master/docs/gcode_shell_command.md
+
+### Bike chain wax
+
+- Jadhav et al., *Ultrasound assisted manufacturing of paraffin wax nanoemulsions* (Ultrason. Sonochem. 2015; 160.9 nm, modified-SDS stabilized) — https://doi.org/10.1016/j.ultsonch.2014.10.024
+- ICI, *The HLB System* — https://www.scientificspectator.com/documents/personal%20care%20spectator/The%20HLB%20Book%20ICI.pdf
+- Gonen, *Influence of silica nanoparticles on the stability of paraffin wax emulsions* — https://eds.yildiz.edu.tr/AjaxTool/GetArticleByPublishedArticleId?PublishedArticleId=6862
+- Zero Friction Cycling lubricant testing — https://zerofrictioncycling.com.au/lubetesting/
+- Zero Friction Cycling chain-lubricant results PDF — https://zerofrictioncycling.com.au/wp-content/uploads/2024/09/Chain-Lubricant-Results-Sept-Aug-2024b.pdf
+- Friction Facts UltraFast formula via BikeRadar — https://www.bikeradar.com/news/friction-facts-publishes-ultrafast-chain-lube-formula
+- Zero Friction Cycling Molten Speed Wax review — https://zerofrictioncycling.com.au/wp-content/uploads/2017/12/MSW.pdf
+- SILCA Secret Chain Blend — https://silca.cc/products/secret-chain-wax-blend
+- CeramicSpeed UFO application FAQ — https://ceramicspeed.com/pages/ufo-family-application-and-faq
+- Graphene-family lubricant additive review — https://www.mdpi.com/2075-4442/10/9/215
+- hBN/TiO₂ water-based nanolubricant study — https://www.mdpi.com/2075-4442/12/4/123
+- Nanolubricant additives review — https://link.springer.com/article/10.1007/s40544-020-0450-8
+- Spicer et al., *Effects of Frictional Loss on Bicycle Chain Drive Efficiency* (J. Mech. Des. 2001) — https://doi.org/10.1115/1.1412848
+- Spicer, *Nonlinear Elastic Behavior of Bicycle Chain on Transmission Efficiency* (J. Appl. Mech. 2013) — https://doi.org/10.1115/1.4007431
+- Hu et al., *Tribological Properties of Different Morphology WS₂ as Lubricant Additives* (Materials 2020) — https://doi.org/10.3390/ma13071522
+- Nagarajan et al., *MoS₂ nanoparticles as nano-additives in engine oil* (Sci. Rep. 2022) — https://doi.org/10.1038/s41598-022-16026-4
+- Patel & Kiani, *rGO at different concentrations on tribological properties* (Lubricants 2019) — https://doi.org/10.3390/lubricants7020011
+- Dou et al., *Self-dispersed crumpled graphene balls in oil* (PNAS 2016) — https://doi.org/10.1073/pnas.1520994113
+- Lindner et al., *HLB, surfactant, particle size and stability of wax dispersions* (Coatings 2018) — https://doi.org/10.3390/coatings8120469
+- Cornell, *Embedding mixture experiments inside factorial experiments* (J. Qual. Technol. 1990) — https://doi.org/10.1080/00224065.1990.11979258
+- Friction Facts/VeloNews & Zero Friction Cycling watt/wear data — https://intheknowcycling.com/chain-wax-faster-better-and-cheaper/ · https://www.cyclingabout.com/best-bike-chain-lubes-according-to-science/
+
+### Hair-removal wax
+
+- CN108379120A depilatory wax patent — https://patents.google.com/patent/CN108379120A/en
+- US20180028419A1 depilatory composition — https://patents.google.com/patent/US20180028419A1/en
+- EP3009168A1 depilatory wax — https://data.epo.org/publication-server/rest/v1.2/publication-dates/20160420/patents/EP3009168NWA1/document.pdf
+- US10166178B2 depilatory wax composition — https://patents.justia.com/patent/10166178
+- Quain et al., allergic contact dermatitis caused by colophony in an epilating product — https://pubmed.ncbi.nlm.nih.gov/17498415/
+- George et al., depilatory wax allergen review — https://pubmed.ncbi.nlm.nih.gov/39501881/
+- Lahouel et al., pustular allergic contact dermatitis caused by colophonium — https://pubmed.ncbi.nlm.nih.gov/32876340/
+- DermNet rosin and colophony allergy — https://dermnetnz.org/topics/rosin-allergy
+- Kobo no-heat hair-removal wax formula — https://www.koboproductsinc.com/formulations/KHP-059.pdf
+- EP0194181A1 depilatory composition (hair-vs-skin adhesion balance) — https://patents.google.com/patent/EP0194181A1/en
+- Karimian et al., *Contact allergy to colophonium: systematic review & meta-analysis* (Contact Dermatitis 2026) — https://onlinelibrary.wiley.com/doi/10.1111/cod.70153
+- Karlberg et al., *Hydrogenation reduces the allergenicity of colophony* (Contact Dermatitis 1988) — https://pubmed.ncbi.nlm.nih.gov/3180766/
+- Gáfvert, *Patch testing with allergens from modified rosin* (Contact Dermatitis 1994/96) — https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1600-0536.1996.tb02391.x
+- Lee et al., *Depilatory wax burns: experience and investigation* (Burns 2011) — https://pmc.ncbi.nlm.nih.gov/articles/PMC3098007/
+- Martin & Falder, *Evidence for the threshold of burn injury* (Burns 2017) — https://pubmed.ncbi.nlm.nih.gov/28536038/
+- Grzelka et al., *Viscoelastic-to-fracture transition in PSA peeling* (Soft Matter 2022) — https://arxiv.org/abs/2107.09367
+- Park et al., *Adhesion of EVA hot-melt adhesives: tackifier and wax* (Int. J. Adhesion 2020) — https://www.sciencedirect.com/science/article/abs/pii/S0143749620300476
+- Scheffé, *Experiments with Mixtures* (J. R. Stat. Soc. B 1958) — https://doi.org/10.1111/j.2517-6161.1958.tb00299.x
 
 ## License
 

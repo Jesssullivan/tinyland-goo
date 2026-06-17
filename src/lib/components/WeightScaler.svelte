@@ -47,8 +47,8 @@
 <div class="card p-4 preset-outlined-surface-500 not-prose my-6">
 	<div class="mb-3 flex flex-wrap items-center justify-between gap-3">
 		<h3 class="m-0 text-lg font-semibold">{title}</h3>
-		<div class="flex items-center gap-2">
-			<div class="flex gap-1" role="group" aria-label="Scale the batch size">
+		<div class="flex max-w-full flex-wrap items-center gap-2">
+			<div class="flex flex-wrap gap-1" role="group" aria-label="Scale the batch size">
 				{#each presets as p (p.factor)}
 					<button
 						type="button"
