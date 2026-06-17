@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import '../app.css';
 
 	let { children } = $props();
@@ -27,10 +28,15 @@
 	<header
 		class="sticky top-0 z-10 border-b border-surface-300 bg-surface-50/85 backdrop-blur dark:border-surface-700 dark:bg-surface-950/85"
 	>
-		<div class="mx-auto flex max-w-3xl items-center justify-between px-6 py-3">
-			<a href="https://jesssullivan.github.io/tinyland-goo/" class="font-mono text-sm font-semibold">
+		<div class="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+			<a href={`${base}/`} class="font-mono text-sm font-semibold">
 				tinyland-goo
 			</a>
+			<nav class="flex flex-wrap items-center gap-3 text-xs font-medium text-surface-600 dark:text-surface-300">
+				<a class="underline-offset-4 hover:underline" href={`${base}/`}>bed glue</a>
+				<a class="underline-offset-4 hover:underline" href={`${base}/chain-wax`}>chain wax</a>
+				<a class="underline-offset-4 hover:underline" href={`${base}/hair-removal-wax`}>hair wax</a>
+			</nav>
 			<button
 				type="button"
 				class="btn btn-sm preset-outlined-surface-500"

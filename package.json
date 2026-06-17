@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"description": "UV-reactive, strontium-aluminate-infused 3D-printer bed glue — a stronger-than-Frank recipe with an interactive weight scaler, a Mouser BOM for UV coverage sensing, and a Klipper pre-print gate.",
+	"description": "Tinyland static lab notebook for UV-reactive 3D-printer bed glue plus paraffin wax research tracks for bike chain wax and hair removal wax.",
 	"homepage": "https://jesssullivan.github.io/tinyland-goo/",
 	"scripts": {
 		"dev": "vite dev",

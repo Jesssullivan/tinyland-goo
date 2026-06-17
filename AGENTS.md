@@ -7,9 +7,10 @@ surfaces** section before reaching for Bazel, Nix, or Flywheel.
 
 ## Repo Role
 
-A **static brand/project site under the Tinyland enterprise** — a single
-project page for a UV-reactive 3D-printer bed glue (recipe + interactive
-scaler), an off-the-shelf UV coverage-sensing BOM, and a Klipper pre-print gate.
+A **static brand/project site under the Tinyland enterprise** — a lab-notebook
+style project page for UV-reactive 3D-printer bed glue (recipe + interactive
+scaler), an off-the-shelf UV coverage-sensing BOM, and a Klipper pre-print gate,
+plus adjacent paraffin-wax research pages for bike chain wax and depilatory wax.
 It is **not** an application backend: no user data, auth, payments, business
 logic, or runtime API routes. `tinyland.repo.json` records this honestly
 (every `owns_*` boundary is `false`).
