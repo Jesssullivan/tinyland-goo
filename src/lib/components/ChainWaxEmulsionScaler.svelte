@@ -18,9 +18,14 @@
 			role: 'Hardness / melt-point modifier for a cleaner dry coating'
 		},
 		{
-			item: 'WS2 or hBN additive pack',
-			grams: 0.75,
-			role: 'Sub-micron solid lubricant; keep low until dispersion is proven'
+			item: 'hBN, 0.5 µm (Pickering primary)',
+			grams: 0.5,
+			role: 'Lead solid for the aqueous route: near-ideal Pickering particle (~0.2-1 µm, ~90° wetting, charged), water/oxidation-inert where the sulfides are disadvantaged'
+		},
+		{
+			item: 'WS2, 0.5 µm, pre-wetted (optional)',
+			grams: 0.25,
+			role: 'Low-dose sulfide only if wanted; de-agglomerate and pre-wet (oleic acid/PVP) separately first. Keep coarse/dense MoS2 out of the emulsion entirely'
 		},
 		{
 			item: 'Nonionic surfactant blend, HLB ~11-13',
@@ -46,7 +51,7 @@
 	];
 
 	const footnote =
-		'23.75 wt% wax/additive solids. Make hot above the wax melt range, pre-emulsify mechanically, then sonicate in short cooled bursts. Treat as a lab prototype: measure droplet size, creaming, residue mass per chain, cure time, and water sensitivity before road use.';
+		'Build the base wax emulsion and confirm sub-micron droplets FIRST, then add solids — particles destabilize the droplet interface. Lead with hBN (survives the aqueous route the sulfides dislike); add pre-wetted WS2 only at low dose; keep MoS2 out (too coarse and dense to stay suspended). Treat surfactant coverage and particle de-agglomeration as two separate optimization targets. Lab prototype: measure droplet size, creaming, residue mass per chain, cure time, and water sensitivity before road use.';
 </script>
 
 <WeightScaler

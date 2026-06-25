@@ -12,21 +12,21 @@
 		},
 		{
 			additive: 'WS2',
-			range: '0.25-1.5 wt%',
-			why: 'Modern commercial wax systems lean on nano/sub-micron tungsten disulfide as the PFAS-free solid-lube bet.',
-			watch: 'Particle size, dispersion, gray mess, and whether humid-road durability beats MoS2.'
+			range: '1.0 wt% (primary)',
+			why: 'Down-select winner and commercial SOTA (Silca is WS2-only): finest dense sulfide on hand, more oxidation-robust than MoS2.',
+			watch: 'WS2 is itself humidity-sensitive (boundary COF rises ~2-4x dry to humid), and there is zero peer-reviewed WS2-in-wax data — validate, do not assume.'
 		},
 		{
 			additive: 'MoS2',
-			range: '0.1-0.7 wt%',
-			why: 'The legacy Friction Facts home formula used a small MoS2 addition, so it is the historical control.',
-			watch: 'Humidity/oxidation sensitivity; do not assume vacuum tribology transfers to a wet chain.'
+			range: 'control arm only',
+			why: 'Dropped from the production blend; kept as a MoS2-only control so the drop is measured, not asserted.',
+			watch: 'Most humidity/oxidation-sensitive sulfide, coarsest/least-pure powder on hand; no wax-matrix dose-response exists, so oil/vacuum wins may not transfer to a wet chain.'
 		},
 		{
 			additive: 'hBN',
-			range: '0.25-1.5 wt%',
-			why: 'Chemically inert, white, lamellar solid lubricant. Easier to visually inspect than sulfides.',
-			watch: 'May need smaller particles or surfactant help to stay where the load is.'
+			range: '≤1 wt% (co-solid)',
+			why: 'Kept as the distinct hedge: water/oxidation-inert (friction often drops with water), Pickering-friendly for the emulsion, white and inspectable.',
+			watch: 'Clearest null/negative literature of the trio above ~1 wt%; hard to wet, needs a dispersant; weaker as a primary friction reducer.'
 		},
 		{
 			additive: 'Graphene / rGO',
@@ -50,8 +50,8 @@
 		},
 		{
 			factor: 'Solid additive',
-			levels: 'none / WS2 / hBN / MoS2 / WS2+hBN',
-			response: 'drivetrain loss proxy, chain wear, black residue, post-rain survival'
+			levels: 'none (control) / WS2+hBN (lead) / WS2-only / MoS2-only (control) / +IF-WS2 arm',
+			response: 'drivetrain loss proxy, chain wear, dark residue/stain, post-rain survival, rust'
 		},
 		{
 			factor: 'Additive loading',
@@ -86,7 +86,7 @@
 		'Sonicate in short bursts with cooling pauses; target sub-micron droplets before chasing additives.',
 		'Cool while gently stirring through the wax crystallization range so droplets solidify before creaming.',
 		'Screen stability by jar photos, centrifuge/heat-cool cycles, residue mass after drying, and chain penetration.',
-		'Only then add WS2/hBN and repeat droplet/stability checks, because particles can destabilize the emulsion.'
+		'Only then add hBN (lead) and optional low-dose WS2, repeating droplet/stability checks; keep MoS2 out and treat de-agglomeration as a separate target from droplet stabilization.'
 	];
 
 	const sources = [
@@ -219,6 +219,31 @@
 			title: 'Cornell, Embedding Mixture Experiments inside Factorial Experiments (J. Qual. Technol. 1990)',
 			href: 'https://doi.org/10.1080/00224065.1990.11979258',
 			note: 'Canonical mixture-process design reference; basis for treating composition rows as a mixture crossed with process variables.'
+		},
+		{
+			title: 'Joly-Pottuz, Dassenoy et al., Ultralow-friction and wear properties of IF-WS2 under boundary lubrication (Tribol. Lett. 2005)',
+			href: 'https://doi.org/10.1007/s11249-005-3607-8',
+			note: 'The actual primary source of the IF-WS2 COF <0.04 figure (PAO oil, smooth contact, ~0.83 GPa) — usually misattributed to Rapoport. An oil/smooth-contact best case that does not transfer to a wax film.'
+		},
+		{
+			title: 'Prasad, McDevitt & Zabinski, Tribology of tungsten disulfide films in humid environments (Wear 1999)',
+			href: 'https://doi.org/10.1016/S0043-1648(99)00082-4',
+			note: 'WS2 COF ~0.04 in dry N2 rises to 0.10-0.15 at ~60% RH — WS2 is itself humidity-sensitive, so the moisture hedge is hBN, not WS2.'
+		},
+		{
+			title: 'Zhang, Mo, Lv & Wang, WS2 Nanoparticles as Additives in Calcium Sulfonate Complex-Polyurea Grease (Lubricants 2023)',
+			href: 'https://doi.org/10.3390/lubricants11060259',
+			note: 'Closest non-oil analog: 2 wt% WS2 in grease cut COF only ~14.94% but raised max non-seizure load +31.41% — modest friction, real extreme-pressure benefit.'
+		},
+		{
+			title: 'Sahoo & Biswas, Deformation and friction of MoS2 particles in liquid suspensions (Thin Solid Films 2010)',
+			href: 'https://doi.org/10.1016/j.tsf.2010.05.127',
+			note: '~2 µm MoS2 formed a better homogeneous low-friction transfer film and stayed in contact where ~50 nm could not — "finer always wins" is not a clean law.'
+		},
+		{
+			title: 'Pena-Paras & Martini et al., Substrate roughness and nano/micro particle size on friction and wear (Tribol. Int. 2018)',
+			href: 'https://doi.org/10.1016/j.triboint.2017.09.009',
+			note: 'Optimal additive size is intermediate (~165 nm) and matched to surface roughness via valley-filling, not the absolute smallest particle.'
 		}
 	];
 </script>
@@ -272,8 +297,9 @@
 
 	<h2 class="mt-12 text-2xl font-semibold">Hot-melt screening blend</h2>
 	<p class="mt-3">
-		This is the first pot I would make after the plain-paraffin control. It deliberately avoids PTFE,
-		keeps total powder modest, and uses WS2/hBN/MoS2 as testable axes rather than folklore.
+		This is the first pot I would make after the plain-paraffin control. It deliberately avoids PTFE and is
+		down-selected to two non-redundant solids — WS2 as the primary lamellar lubricant and hBN as the
+		humidity-inert hedge — with MoS2 dropped to a measured control arm rather than carried in the blend.
 	</p>
 
 	<ChainWaxHotMeltScaler />
@@ -322,14 +348,32 @@
 	</div>
 
 	<p class="mt-3">
-		Calibrating those ranges against primary tribology — mostly oil-additive data, so directional for a
-		wax film rather than a transfer guarantee:
+		Calibrating the down-select against primary tribology — and flagging where the headline numbers were
+		walked back by adversarial verification. The decisive caveat first: there is <strong>no peer-reviewed
+		WS2-in-wax tribology at all</strong>. Every number below is oil-, grease-, or coating-matrix, so this blend
+		is an engineering extrapolation to bench-validate, not a measured wax result.
 	</p>
 	<ul class="mt-3 list-disc space-y-2 pl-6">
-		<li><strong>WS2 — anchor the bet.</strong> ~1-1.5&nbsp;wt% in oil cuts COF ~29-30% (Hu et&nbsp;al. 2020: lamellar 29.35% at 100&nbsp;N, spherical 30.24% at 120&nbsp;N) and it lubricates dry <em>and</em> humid, with a high oxidation onset (~450-540&nbsp;C vs MoS2's ~300-370&nbsp;C). Honest caveat: WS2 is itself humidity-sensitive (COF ~0.04 dry rising to 0.10-0.15 at 60% RH), so the prior favors WS2 but isn't settled on a wet chain.</li>
-		<li><strong>MoS2 — the homebrew band is an order of magnitude high.</strong> Friction Facts' UltraFast was 1&nbsp;lb paraffin + 5&nbsp;g PTFE + 1&nbsp;g MoS2 (~0.2&nbsp;wt%, and MoS2 not WS2). The measured oil optimum is far lower: 0.01&nbsp;wt% gave ~19% lower COF, falling to ~2% by 0.1&nbsp;wt% as agglomerates cut abrasive grooves (Nagarajan et&nbsp;al. 2022). Add a 0.01-0.05&nbsp;wt% low-dose arm.</li>
-		<li><strong>hBN — the range brackets the data.</strong> 1.0&nbsp;wt% gave ~40% lower COF in canola oil (Sikdar et&nbsp;al. 2021), but 14&nbsp;nm hBN in rapeseed oil showed no COF improvement at all (Ionescu et&nbsp;al. 2020) — particle/base-fluid dependent.</li>
+		<li><strong>WS2 — keep as the primary, but de-hype it.</strong> The dazzling IF-WS2 &lt;0.04 COF is an oil/smooth-contact/0.83&nbsp;GPa best case (Joly-Pottuz et&nbsp;al. 2005, <em>not</em> the often-cited Rapoport papers), and a paraffin+IF composite only reached ~0.05; the "~2.5x finer-wins" gap is a single-study outlier (independent data show ~5%). In grease — the closest non-oil analog — WS2 cut COF only ~15% (Zhang et&nbsp;al. 2023). WS2 is also <em>not</em> moisture-proof: its boundary COF rises ~2-4x dry to humid via O-H...S hydrogen bonding (Prasad et&nbsp;al. 1999). It still wins the sulfide slot on oxidation robustness and commercial track record.</li>
+		<li><strong>MoS2 — drop first, for the right reasons.</strong> Not primarily "redundant" (that claim is weak): drop it because it is the <em>most</em> humidity-sensitive sulfide (wrong failure mode for a wet, gritty chain), the coarsest (1.3&nbsp;µm) and least-pure powder on hand, and lower in oxidation onset than WS2 — the ranking holds even though the old 350-vs-540&nbsp;°C delta was overstated and one citation was misattributed to a NASA vacuum study. "Coarse loses" is itself not clean: micron MoS2 can build a <em>better</em> transfer film (Sahoo &amp; Biswas 2010; optimum ~165&nbsp;nm, roughness-matched, Pena-Paras &amp; Martini 2018). With no peer-reviewed MoS2-in-wax dose-response to lean on, it stays a control arm rather than a production row.</li>
+		<li><strong>hBN — keep as the hedge, not the hero.</strong> It earns its place by being mechanistically distinct: water/oxidation-inert (its friction often <em>drops</em> with water), a near-ideal Pickering particle for the emulsion route, and white/inspectable. But it carries the clearest null/negative literature of the trio (no benefit above ~1&nbsp;wt% in several greases, raised COF in paraffinic oil), so it is pinned ≤1&nbsp;wt% as the anti-wear/weather leg, not the primary friction reducer.</li>
 		<li><strong>Graphene/rGO — micro-dose, dispersion-limited.</strong> rGO optimized near 0.05&nbsp;wt% (wear ~52% lower; 0.1&nbsp;wt% was worse, Patel &amp; Kiani 2019). The low optimum is a dispersion property: flat rGO restacks and fully sediments within ~20&nbsp;h (Dou et&nbsp;al. 2016, PNAS), and the optimum climbs toward ~0.7-1&nbsp;wt% in viscous carriers.</li>
+	</ul>
+
+	<h2 class="mt-12 text-2xl font-semibold">Mixing and dispersion technique</h2>
+	<p class="mt-3">
+		Going from three solids to two is partly a dispersion decision: each powder needs its own surfactant,
+		sonication optimum, and specific-energy target, so co-dispersing three means no single setpoint is right
+		for any. The SOTA moves for getting sub-micron solids into wax and keeping them there:
+	</p>
+	<ul class="mt-3 list-disc space-y-2 pl-6">
+		<li><strong>Probe, not bath.</strong> Dense sub-micron sulfides have strong van der Waals attraction; tip sonication delivers the intensity to de-agglomerate them. Bath sonication is only enough for the lighter hBN.</li>
+		<li><strong>Dose by delivered energy (J/mL), not by time.</strong> Dense WS2 sediments <em>during</em> sonication, so wall-clock time misrepresents the dose. Calibrate and log J/mL per powder — one powder, one target, far better batch reproducibility.</li>
+		<li><strong>Find the optimum, then stop.</strong> Stability and dispersion peak and then fall with excess sonication (heat-driven re-aggregation, particle fracture).</li>
+		<li><strong>Functionalize the sulfide.</strong> Oleic acid or PVP measurably shrinks WS2 agglomerates; PVP gave the most homogeneous distribution in the literature — and PVP is already a house ingredient here.</li>
+		<li><strong>Lock particles in on cooling.</strong> Add a metal-stearate dispersant for redispersibility and use a fast quench so the dense particles freeze in place before they cream; interfacial self-assembly partitions lamellar platelets toward the wax surface, where the film needs them.</li>
+		<li><strong>Three-roll mill the hot-melt.</strong> Sonication alone leaves clumps that re-agglomerate; a high-shear mill pass physically locks platelets into the wax and is the step that delivers the wear benefit.</li>
+		<li><strong>Quantify, don't eyeball.</strong> Track agglomerate size by DLS/laser diffraction and report agglomeration reduction separately from dispersion homogeneity — wear benefit tracks the latter.</li>
 	</ul>
 
 	<h2 class="mt-12 text-2xl font-semibold">Ultrasonic emulsion track</h2>
@@ -386,6 +430,16 @@
 		and join them as a crossed mixture-process design (Cornell 1990). Concretely: a Plackett-Burman screen
 		(~12 runs) on the process variables, then Box-Behnken on the survivors with replicated center points —
 		not one factorial-then-RSM pipeline stretched across composition too.
+	</p>
+	<p class="mt-3">
+		Sequence the work so the down-select is <em>measured</em>, not asserted. Qualify dispersion first — sweep
+		specific energy and dispersant and screen agglomerate size and settling <strong>before</strong> any
+		tribology; that gate alone may eliminate MoS2 on settling grounds. Then run the solid-system screen in the
+		real wax matrix with the controls that keep it honest: a no-solid arm, a MoS2-only arm, and — since
+		closed-cage IF-WS2 behaves differently than platelets — an IF-WS2 arm. Make the contamination/humidity
+		block the gating test rather than fresh-chain smoothness, and add dark-residue/stain and post-wet rust to
+		the response set. The additive's real job is wear and weather, and the whole solid package may buy only
+		~0.14&nbsp;W over plain paraffin, so the controls have to be able to say "the additives didn't pay."
 	</p>
 
 	<div class="not-prose my-4 overflow-x-auto">
