@@ -4,8 +4,8 @@
 	const ingredients = [
 		{
 			item: 'Fully refined paraffin wax',
-			grams: 91.5,
-			role: 'Low-oil crystalline base; the default clean-running chain carrier'
+			grams: 92.0,
+			role: 'Low-oil crystalline base; carries nearly all the measured efficiency win — the solids are for wear and contamination life, not watts'
 		},
 		{
 			item: 'Microcrystalline wax',
@@ -18,19 +18,19 @@
 			role: 'Hardness / melt-point modifier; screen lower if the chain sheds flakes'
 		},
 		{
-			item: 'Tungsten disulfide, sub-micron',
+			item: 'Tungsten disulfide, 0.5 µm',
 			grams: 1.0,
-			role: 'PFAS-free lamellar solid lubricant; the primary additive screen'
+			role: 'Primary PFAS-free lamellar solid; finest dense sulfide on hand and the commercial SOTA bet. The 1 µm mil-spec lot is a coarse/fallback fraction, not a second factor'
 		},
 		{
-			item: 'Hexagonal boron nitride, sub-micron',
-			grams: 1.0,
-			role: 'White/inert lamellar solid; useful contrast to black sulfides'
+			item: 'Hexagonal boron nitride, 0.5 µm',
+			grams: 0.75,
+			role: 'Mechanistically distinct co-solid: water/oxidation-inert humidity hedge, emulsion-friendly, white (inspectable). Pinned ≤1 wt% per the null-above-optimum data'
 		},
 		{
-			item: 'Molybdenum disulfide, fine powder',
-			grams: 0.5,
-			role: 'Legacy Friction Facts band (~0.1-0.7 wt%); oil-additive optimum is ~0.01-0.05 wt%, so also run a low-dose sweep arm'
+			item: 'Metal stearate or oleic acid dispersant',
+			grams: 0.25,
+			role: 'In-melt wetting / anti-settling so the dense WS2 stays suspended through crystallization; pairs with high-shear milling and a fast quench'
 		}
 	];
 
@@ -41,7 +41,7 @@
 	];
 
 	const footnote =
-		'Screening blend, not a claimed optimum. Total additive load is 2.5 wt%, deliberately below the old PTFE-heavy homebrew formulas. Keep one plain-paraffin control and vary one additive axis at a time before stacking effects.';
+		'Down-selected from the prior 3-solid 2.5 wt% blend to two non-redundant solids (1.75 wt% solids, 2.0 wt% with dispersant). MoS2 was dropped to a DOE control arm, not deleted: keep a MoS2-only and a plain-paraffin arm so the drop is measured, not asserted. There is no peer-reviewed WS2-in-wax tribology, so treat every row as a hypothesis to bench-validate.';
 </script>
 
 <WeightScaler

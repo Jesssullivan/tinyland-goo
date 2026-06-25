@@ -123,32 +123,37 @@ Route: `/chain-wax`
 The chain-wax page treats paraffin lubrication as a measured tribology problem:
 
 - Hot immersion first, because wax must reach the pin/roller/plate interfaces before it solidifies.
-- PFAS-free additive screens centered on WS₂, hBN, and MoS₂ controls, with low-dose graphene/rGO as an advanced axis.
+- Down-selected to two non-redundant PFAS-free solids — WS₂ (0.5 µm) as the primary lamellar lubricant and hBN as the water/oxidation-inert hedge — with MoS₂ dropped to a measured control arm and low-dose graphene/rGO as an advanced axis.
 - Ultrasonic paraffin wax-in-water emulsion as a drip/top-up experiment, not a claimed replacement for immersion until penetration and contamination durability are measured.
 - Bicycle-specific wear testing inspired by Zero Friction Cycling: fixed load, fixed intervals, fixed contamination dose, and no chain cleaning during the main block.
 
 Key calibrations from a deeper paper review:
 
 - In a clean rig, lube choice barely moves watts — chain efficiency runs ~80.9–98.6% set by tension and sprocket size, not lubrication (Spicer 2001). The wax advantage is contamination and wear: top waxes wear ~2.6–14.7× fewer chains over a 5000 km contamination test (Zero Friction Cycling).
-- Additive doses are lower than folklore: the measured MoS₂ oil-additive optimum is ~0.01 wt% (not the 0.1–0.7 wt% homebrew band), WS₂ at ~1–1.5 wt% cuts COF ~29–30%, and graphene/rGO optima sit near ~0.05 wt% and are dispersion-limited.
+- Additive doses are lower than folklore: WS₂ at ~1–1.5 wt% cuts COF ~29–30% in oil, the measured MoS₂ oil-additive optimum is ~0.01 wt% (not the 0.1–0.7 wt% homebrew band), and graphene/rGO optima sit near ~0.05 wt% and are dispersion-limited.
+- The down-select is a measured bet, not a settled result: there is no peer-reviewed WS₂-in-wax tribology, the headline IF-WS₂ COF <0.04 is an oil/smooth-contact best case (Joly-Pottuz 2005, ~0.05 in a paraffin composite, ~15% in grease), and WS₂ is itself humidity-sensitive (COF rises ~2–4× dry→humid, Prasad 1999) — which is why hBN is kept as the moisture hedge and MoS₂-only / no-solid control arms stay in the DOE.
 - The verified ultrasonic paraffin nanoemulsion (160.9 nm, 15 min) was stabilized by anionic SDS, not a Tween/Span blend; the required HLB for a fluid O/W paraffin is a band, ~10–13.5.
 
 The hot-melt scaler starts with a 100 g screen:
 
 | Ingredient | 100 g (g) | Role |
 | --- | ---: | --- |
-| Fully refined paraffin wax | 91.50 | Low-oil crystalline base |
+| Fully refined paraffin wax | 92.00 | Low-oil crystalline base |
 | Microcrystalline wax | 4.00 | Toughness / adhesion |
 | Fischer-Tropsch or PE wax | 2.00 | Hardness / melt-point modifier |
-| Tungsten disulfide | 1.00 | PFAS-free lamellar solid lubricant |
-| Hexagonal boron nitride | 1.00 | Inert lamellar solid-lube comparison |
-| Molybdenum disulfide | 0.50 | Legacy Friction Facts-style control |
+| Tungsten disulfide (0.5 µm) | 1.00 | Primary PFAS-free lamellar solid lubricant |
+| Hexagonal boron nitride (0.5 µm) | 0.75 | Distinct water/oxidation-inert co-solid (≤1 wt%) |
+| Metal stearate / oleic acid dispersant | 0.25 | In-melt wetting / anti-settling for the dense WS₂ |
+
+That is 1.75 wt% solids (2.0 wt% with dispersant), down from the prior 3-solid 2.5 wt% blend;
+MoS₂ moves to a DOE control arm rather than a production row.
 
 The emulsion scaler starts with a 100 g, 23.75 wt% wax/additive-solids prototype using
-paraffin, microcrystalline wax, FT/PE wax, a low solid-lube load, an HLB ~11–13 nonionic
-emulsifier blend, an anionic SDS/SDBS lane (the verified nanoemulsion's actual stabilizer),
-and distilled water. It is meant for droplet
-size, creaming, residue, penetration, and water-sensitivity screens before road use.
+paraffin, microcrystalline wax, FT/PE wax, an hBN-led Pickering solid load (build the base
+emulsion first, add solids after), an HLB ~11–13 nonionic emulsifier blend, an anionic
+SDS/SDBS lane (the verified nanoemulsion's actual stabilizer), and distilled water. It is
+meant for droplet size, creaming, residue, penetration, and water-sensitivity screens before
+road use.
 
 ## Hair-removal wax research
 
