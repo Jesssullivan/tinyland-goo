@@ -23,10 +23,15 @@ dev:
 dev-open:
     cd {{ root }} && pnpm run dev -- --open
 
-# Type-check (svelte-check) + prove the Flywheel enrollment contract stays wired
+# Type-check (svelte-check) + unit tests + prove the Flywheel enrollment contract
 check:
     cd {{ root }} && pnpm run check
+    cd {{ root }} && pnpm run test:unit
     cd {{ root }} && bash scripts/flywheel-enrollment-contract-test.sh
+
+# Unit tests (vitest, pure-logic; see src/lib/*.test.ts)
+test-unit:
+    cd {{ root }} && pnpm run test:unit
 
 # Production static build. BASE_PATH defaults to the GitHub Pages project path.
 build base_path="/tinyland-goo":

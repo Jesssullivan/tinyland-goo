@@ -46,6 +46,8 @@ jobs:
         run: bash scripts/check-conformance.sh
       - name: Type check
         run: pnpm run check
+      - name: Unit tests (vitest)
+        run: pnpm run test:unit
       - name: Flywheel enrollment contract
         run: bash scripts/flywheel-enrollment-contract-test.sh
       - name: Build (project base path)

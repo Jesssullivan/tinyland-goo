@@ -6,7 +6,8 @@
 	// brace-escaper. Everything is grams for a 0.01 g scale, with a g <-> oz
 	// toggle. `factor` multiplies the base-batch grams.
 
-	type Ingredient = { item: string; grams: number; role: string };
+	import { batchTotalGrams, formatAmount, gramsToOz, type Ingredient } from '$lib/scale';
+
 	type Preset = { factor: number; label: string; recommended?: boolean };
 
 	let {
@@ -25,23 +26,21 @@
 		footnote?: string;
 	} = $props();
 
-	const G_PER_OZ = 28.349523125;
-
 	// null = "follow the recipe's default"; a click pins an explicit factor.
 	let factorOverride = $state<number | null>(null);
 	const factor = $derived(factorOverride ?? defaultFactor);
 	let unit = $state<'g' | 'oz'>('g');
 
 	const rows = $derived(
-		ingredients.map((ing) => {
-			const grams = ing.grams * factor;
-			const amount = unit === 'oz' ? (grams / G_PER_OZ).toFixed(3) : grams.toFixed(2);
-			return { item: ing.item, role: ing.role, amount };
-		})
+		ingredients.map((ing) => ({
+			item: ing.item,
+			role: ing.role,
+			amount: formatAmount(ing.grams, factor, unit)
+		}))
 	);
 
-	const totalGrams = $derived(ingredients.reduce((s, i) => s + i.grams, 0) * factor);
-	const totalOz = $derived(totalGrams / G_PER_OZ);
+	const totalGrams = $derived(batchTotalGrams(ingredients, factor));
+	const totalOz = $derived(gramsToOz(totalGrams));
 </script>
 
 <div class="card p-4 preset-outlined-surface-500 not-prose my-6">

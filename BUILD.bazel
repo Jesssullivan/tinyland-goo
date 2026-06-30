@@ -8,6 +8,7 @@ integrity is provable. The unit-test target + vitest land in a later phase.
 
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_run_binary", "js_test")
 load("@npm//:defs.bzl", "npm_link_all_packages")
+load("@npm//:vitest/package_json.bzl", vitest = "bin")
 
 npm_link_all_packages(name = "node_modules")
 
@@ -63,16 +64,36 @@ js_test(
     timeout = "long",
 )
 
+vitest.vitest_test(
+    name = "unit_tests",
+    args = [
+        "run",
+        "--reporter=verbose",
+        "--config",
+        "$(rootpath vitest.config.ts)",
+    ],
+    data = [
+        ":app_srcs",
+        ":node_modules",
+        ":node_modules/vitest",
+        "vitest.config.ts",
+    ],
+    tags = [
+        "flywheel-eligible",
+        "vitest",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 test_suite(
     name = "ci_validation_suite",
-    # A test_suite's tags are a positive FILTER over members (svelte_check_test
-    # already carries flywheel-eligible), keeping it under the flywheel-executor
-    # tag filter. Scoped to :svelte_check_test only this phase; :unit_tests is
-    # added alongside vitest later. Do NOT add "manual" — it would drop the
-    # member and resolve to zero targets.
+    # A test_suite's tags are a positive FILTER over members (both members carry
+    # flywheel-eligible), keeping it under the flywheel-executor tag filter. Do
+    # NOT add "manual" — it would drop the members and resolve to zero targets.
     tags = ["flywheel-eligible"],
     tests = [
         ":svelte_check_test",
+        ":unit_tests",
     ],
 )
 

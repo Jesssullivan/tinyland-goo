@@ -18,7 +18,10 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test": "vitest",
+		"test:unit": "vitest run",
+		"test:coverage": "vitest run --coverage"
 	},
 	"devDependencies": {
 		"@fontsource/inter": "^5.2.8",
@@ -29,11 +32,13 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/node": "^22.19.19",
+		"@vitest/coverage-v8": "^4.1.9",
 		"svelte": "^5.55.4",
 		"svelte-check": "^4.4.5",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
-		"vite": "^8.0.14"
+		"vite": "^8.0.14",
+		"vitest": "^4.1.9"
 	},
 	"pnpm": {
 		"overrides": {
