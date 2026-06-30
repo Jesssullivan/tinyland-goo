@@ -1,6 +1,7 @@
 {
 	"$schema": "./docs/schemas/tinyland-repo-manifest.schema.json",
 	"schema_version": 1,
+	"scaffold_tag": "v0.1.0",
 	"repo": {
 		"name": "tinyland-goo",
 		"github": "Jesssullivan/tinyland-goo",
@@ -45,9 +46,9 @@
 	},
 	"supply_chain": {
 		"sbom": {
-			"status": "not-required",
+			"status": "recipe-available",
 			"formats": ["CycloneDX JSON", "SPDX JSON"],
-			"notes": "Leaf static spoke; SBOM not required. Adopt the scaffold `just sbom` recipe if this grows dependencies worth attesting."
+			"notes": "Run `just sbom` to generate ignored local SBOM artifacts under build/sbom/ (syft, via the Nix devshell). Org-only surfaces (tofu/, the Flywheel binding, lanes) are carried documented-but-dormant — see AGENTS.md §Personal posture."
 		}
 	}
 }

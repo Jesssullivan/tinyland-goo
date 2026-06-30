@@ -1,0 +1,25 @@
+# Default owner for all paths
+* @Jesssullivan
+
+# Repo contract + manifest
+/AGENTS.md @Jesssullivan
+/tinyland.repo.json @Jesssullivan
+
+# Bazel (registry-consumer surface)
+/MODULE.bazel @Jesssullivan
+/MODULE.bazel.lock @Jesssullivan
+/.bazelrc @Jesssullivan
+/.bazelrc.flywheel @Jesssullivan
+/.bazelversion @Jesssullivan
+/.bazelignore @Jesssullivan
+/BUILD.bazel @Jesssullivan
+
+# Nix + dev shell
+/flake.nix @Jesssullivan
+/flake.lock @Jesssullivan
+
+# Public-safe IaC (declare-only, dormant)
+/tofu/ @Jesssullivan
+
+# CI + lanes surface
+/.github/ @Jesssullivan

@@ -1,9 +1,13 @@
 # Agent Notes — tinyland-goo
 
-Working contract for coding agents and LLMs operating in this repo. Conforms to
-the `tinyland-inc/site.scaffold` repo contract (static-spoke subset); spawned
-2026-06-06. This is the deliberately-thin leaf variant — read the **Declined
-surfaces** section before reaching for Bazel, Nix, or Flywheel.
+Working contract for coding agents and LLMs operating in this repo. **Spawned
+from** the `tinyland-inc/site.scaffold` contract (static-spoke subset; original
+spawn 2026-06-06), **scaffold tag `v0.1.0`** (`tinyland.repo.json`
+`.scaffold_tag`). As of **2026-06-29** this leaf was **uplifted to the full
+scaffold posture** — pnpm + Nix + toolchain-only Bazel + an endpoint-free
+GloriousFlywheel binding + public-safe `tofu/`/lanes — with the org-only
+surfaces carried **wired-but-dormant** (see *Personal posture*). The canonical
+build + GitHub Pages deploy are unchanged.
 
 ## Repo Role
 
@@ -28,11 +32,12 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
 - **Build**: `just build` runs `pnpm run build` (SvelteKit **adapter-static**)
   and emits a fully static, prerendered site in `build/`. `BASE_PATH` sets the
   GitHub Pages project base (`/tinyland-goo`); `just build-local` builds at root.
-- **Check**: `just check` runs `svelte-check`. `just conformance` runs the
-  static-spoke conformance checklist.
+- **Check**: `just check` runs `svelte-check` + the Flywheel enrollment
+  contract. `just conformance` runs the 16-item scaffold conformance checklist;
+  `just scaffold-doctor` adds the authority-boundary audit.
 - **Secrets**: `just secrets-scan-dir` (working tree) / `just secrets-scan`
   (git history) via gitleaks. **Public-safe internal-endpoint scan**:
-  `just scan-endpoints` (also conformance item 8) blocks internal cluster
+  `just scan-endpoints` (also conformance item 16) blocks internal cluster
   hostnames / `grpc://` endpoints / RFC1918 hosts that gitleaks' token-shape
   rules miss — the gate that keeps the private blahaj / tool-bus topology out of
   this public repo. Run it before copying any org-only scaffold fragment.
@@ -58,36 +63,30 @@ and `static/.nojekyll` is required so `_app/` assets are served.
   (from site.scaffold). Dark mode is the `data-mode` attribute set by the FOUC
   script in `src/app.html`.
 
-## Declined surfaces (and why)
+## Adopted scaffold surfaces (overturning the prior "Declined" stance)
 
-These site.scaffold/darkmap surfaces are intentionally **not** adopted; this is
-documented conformance, not drift:
+As of **2026-06-29** this leaf was uplifted from a deliberately-thin npm static
+page to the **full scaffold posture**. The earlier "Declined surfaces" stance
+(Bazel/Nix/Flywheel/tofu as "pure maintenance cost") is **deliberately
+overturned** on house bazel-first / remote-everything fluency grounds:
 
-- **Bazel — ADOPTED as the dependency SSOT / module-graph integrity proof
-  (toolchain-only, 2026-06-29).** Bazel does **not** build the site — the
-  canonical build stays `pnpm run build` (adapter-static), never on the deploy
-  critical path. What is adopted is a toolchain-only `MODULE.bazel` (no
-  `@tummycrypt/*` deps; this leaf has 0 production deps) with the registry chain
+- **Bazel — dependency SSOT / module-graph integrity proof (toolchain-only).**
+  Bazel does **not** build the site — the canonical build stays `pnpm run build`
+  (adapter-static), never on the deploy critical path. A toolchain-only
+  `MODULE.bazel` (no `@tummycrypt/*` deps; 0 production deps) with the registry
   pinned to an **immutable** `tinyland-inc/bazel-registry` commit sha (not
-  `main/`, per TIN-2235), exercised via `just bazel-graph` (`bazelisk mod
-  graph`) as a gated/optional proof. The old "pure maintenance cost" stance is
-  overturned on house bazel-first / remote-everything fluency grounds. The
-  Flywheel RBE/cache binding (`.bazelrc.flywheel` + the wrapper) is wired
-  **endpoint-free but DORMANT** — see *Personal posture*; RBE never selects an
-  executor for this leaf.
-- **Nix flake + direnv — ADOPTED (local dev only, 2026-06-29).** Cross-spoke
-  toolchain homogeneity + `CI == local` on low-power machines became the stated
-  goal (the original escape clause), so a `flake.nix` devshell now backs local
-  development and the non-deploy CI accelerator jobs. It is **not** on the
-  GitHub Pages publish path, which stays on pinned Node + corepack pnpm.
-- **OpenTofu / Kustomize / Containerfile / adapter-node / `/api/*` routes.**
-  No runtime — this is a static site.
-- **`lanes.json` / Blahaj ephemeral envs / ci-templates `spoke-ci`.** No
-  multi-lane preview or cluster runner need; CI is hosted `ubuntu-latest`.
+  `main/`, per TIN-2235) is exercised via `just bazel-graph` as a gated proof.
+- **Nix flake + direnv — local dev + non-deploy CI only.** Cross-spoke toolchain
+  homogeneity + `CI == local` on low-power machines is now the stated goal. Nix
+  is **never** on the GitHub Pages publish path (pinned Node + corepack pnpm).
+- **GloriousFlywheel binding + `tofu/` + `.github/lanes.json` — wired-but-DORMANT.**
+  Carried for house parity + a one-flip activation path; see *Personal posture*
+  below for exactly how dormancy is encoded (no secrets, no live endpoints).
 
-If any of these become warranted, copy them verbatim from
-`tinyland-inc/site.scaffold` and update `tinyland.repo.json` (`taxonomy.layers`,
-`contracts.nix`) and this section accordingly.
+**Still declined** (genuinely N/A for a static GitHub Pages leaf): a runtime
+backend, `adapter-node`, `/api/*` routes, `Containerfile` / Kustomize, and the
+Vercel / container / K8s deploy targets other Tinyland spokes use. This spoke
+has no runtime; `tinyland.repo.json` records every `owns_*` boundary as `false`.
 
 ## Personal posture — dormant org surfaces
 
@@ -136,4 +135,8 @@ secrets and no live endpoints:
 - Don't add runtime/server code, secrets, or vendor credentials — this is static.
 - Don't remove the Skeleton v4 compat shim or `static/.nojekyll`.
 - Don't introduce raw `--remote_cache=` / `--remote_executor=` endpoints
-  anywhere (endpoint-free wrapper contract); we don't use Bazel here at all.
+  anywhere — the GloriousFlywheel wrapper contract is endpoint-free (the only
+  endpoint authority is `scripts/gloriousflywheel-bazel.sh`).
+- Don't run `just tofu-init/plan/apply` or commit live endpoints/creds — the
+  `tofu/` tree is dormant + apply-incapable here; live values belong only in the
+  gitignored escape-hatch files (`.envrc.local`, `*.auto.tfvars.local`, ...).

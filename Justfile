@@ -60,6 +60,37 @@ lanes-validate:
 lanes-list:
     @cd {{ root }} && jq -r '.lanes[] | [.name, (.trigger // "pull_request"), (.runner_class // "(default)"), (.e2e // false | tostring), .theme] | @tsv' .github/lanes.json | column -t -s $'\t'
 
+# Verify @tummycrypt/@tinyland npm versions match MODULE.bazel (toolchain-only: 0 pkgs)
+inhouse-package-parity:
+    cd {{ root }} && python3 scripts/check-inhouse-package-parity.py
+
+# Generate local SBOM artifacts under ignored build/sbom/ (syft; via the Nix devshell)
+sbom out_dir="build/sbom":
+    cd {{ root }} && mkdir -p "{{ out_dir }}" && version="$(jq -r '.version' package.json)" && \
+      syft scan dir:. \
+        --source-name tinyland-goo \
+        --source-version "$version" \
+        --exclude './.git/**' \
+        --exclude './.direnv/**' \
+        --exclude './node_modules/**' \
+        --exclude './build/**' \
+        --exclude './.svelte-kit/**' \
+        --exclude './bazel-*' \
+        -o cyclonedx-json="{{ out_dir }}/tinyland-goo.cyclonedx.json" \
+        -o spdx-json="{{ out_dir }}/tinyland-goo.spdx.json"
+
+# House-style drift audit: conformance + validations + authority-boundary audit (devshell)
+scaffold-doctor:
+    @cd {{ root }} && echo "=== Layer 1: checks ===" && \
+      just conformance && \
+      just repo-manifest-validate && \
+      just lanes-validate && \
+      just inhouse-package-parity && \
+      just scan-endpoints && \
+      just secrets-scan-dir && \
+      echo "" && echo "=== Layer 3: authority-boundary audit ===" && \
+      bash scripts/scaffold-doctor-boundary.sh
+
 # Gitleaks scan of the working tree
 secrets-scan-dir:
     cd {{ root }} && gitleaks dir --config .gitleaks.toml --redact --verbose .
