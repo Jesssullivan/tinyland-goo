@@ -67,20 +67,19 @@ jobs:
       - name: MODULE.bazel.lock has not drifted
         run: nix develop --command bazelisk mod graph --lockfile_mode=error
 
-  # GloriousFlywheel cache-first build/test. DORMANT: gated on FLYWHEEL_ENABLED.
-  # runs-on tinyland-nix — the cache/RBE data plane is cluster-internal (gRPC,
-  # reachable only inside the cluster), so a GitHub-hosted runner can mint a
-  # token but cannot reach it; the in-cluster ARC lane is where a cache hit lands.
-  # Cache-only here (executor-backed is refused off-cluster). Inert until enabled.
-  flywheel:
-    name: Flywheel cache-first build + test
+  # (A) GloriousFlywheel CACHE-FIRST lane (shared-cache-backed). The honestly-
+  # live-today tier: runs-on the in-cluster tinyland-nix ARC lane (the cache data
+  # plane is svc-internal; a hosted runner can mint a token but cannot reach it),
+  # which injects BAZEL_REMOTE_CACHE. Read-only (uploads off per TIN-1147). Gated
+  # on FLYWHEEL_ENABLED → skip-green until the operator arms it.
+  flywheel-cache:
+    name: Flywheel cache-first (shared-cache-backed)
     runs-on: tinyland-nix
-    timeout-minutes: 30
+    timeout-minutes: 20
     if: ${{ vars.FLYWHEEL_ENABLED == 'true' }}
     env:
-      BAZEL_REMOTE_CACHE: ${{ secrets.BAZEL_REMOTE_CACHE }}
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
-      GF_BAZEL_REMOTE_UPLOAD: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+      GF_BAZEL_REMOTE_UPLOAD: 'false'
     steps:
       - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v31
@@ -89,7 +88,53 @@ jobs:
             experimental-features = nix-command flakes
       - name: Flywheel doctor
         run: nix develop --command just flywheel-doctor
-      - name: Flywheel cache attachment
-        run: nix develop --command just flywheel-info
       - name: Flywheel cache-first remote check
         run: nix develop --command just flywheel-check
+
+  # (B) GloriousFlywheel EXECUTOR-BACKED RBE lane (the proof tier). NON-REQUIRED:
+  # double-gated on the FLYWHEEL_EXECUTOR_ENABLED kill-switch AND same-repo only.
+  # The executor cell is scale-to-zero-between-proofs + render-time placeholders
+  # today, so leave this OFF until ≥2 cold-start gf-reapi-cell proofs are green.
+  # Endpoint-free: the require-executor step asserts the runner-injected cache +
+  # executor env, then OIDC-mints a short-lived gf-reapi-cell token (public
+  # exchange); the wrapper attaches them. Local machine stays a thin Bazel driver.
+  flywheel-executor:
+    name: Flywheel executor-backed RBE (proof lane; non-required)
+    if: >-
+      vars.FLYWHEEL_EXECUTOR_ENABLED == 'true' &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: tinyland-nix
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Require executor-backed GloriousFlywheel lane
+        run: |
+          set -euo pipefail
+          if [ -z "${BAZEL_REMOTE_CACHE:-}" ]; then
+            echo "::error::BAZEL_REMOTE_CACHE is missing. This job must run on the in-cluster GloriousFlywheel ARC lane."
+            exit 1
+          fi
+          if [ -z "${BAZEL_REMOTE_EXECUTOR:-}" ]; then
+            echo "::error::BAZEL_REMOTE_EXECUTOR is missing. Refusing to run check/test as shared-cache local work on an RBE-named lane."
+            exit 1
+          fi
+          echo "GF_BAZEL_SUBSTRATE_MODE=executor-backed" >> "$GITHUB_ENV"
+          echo "GF_BAZEL_REMOTE_EXECUTION_PLATFORM=${GF_BAZEL_REMOTE_EXECUTION_PLATFORM:-gloriousflywheel-rbe-linux-x86_64}" >> "$GITHUB_ENV"
+      - name: Mint GloriousFlywheel REAPI token
+        env:
+          GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
+        run: nix develop --command bash scripts/mint-gf-reapi-token-from-exchange.sh
+      - name: Validate executor-backed attachment
+        run: nix develop --command bash scripts/cache-attachment-contract.sh --strict
+      - name: Remote check + test (executor-backed RBE)
+        run: nix develop --command just flywheel-executor-check
