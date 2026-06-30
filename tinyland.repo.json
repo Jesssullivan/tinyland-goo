@@ -1,5 +1,5 @@
 {
-	"$schema": "https://raw.githubusercontent.com/tinyland-inc/site.scaffold/main/docs/schemas/tinyland-repo-manifest.schema.json",
+	"$schema": "./docs/schemas/tinyland-repo-manifest.schema.json",
 	"schema_version": 1,
 	"repo": {
 		"name": "tinyland-goo",

@@ -48,9 +48,17 @@ preview: build-local
 conformance:
     cd {{ root }} && bash scripts/check-conformance.sh
 
-# Validate the repo manifest parses and declares a static-spoke role
+# Validate tinyland.repo.json against the vendored schema (needs jsonschema; nix develop)
 repo-manifest-validate:
-    cd {{ root }} && node -e 'const m=require("./tinyland.repo.json"); if(m.taxonomy.primary_role!=="static-spoke"){console.error("primary_role must be static-spoke");process.exit(1)} console.log("tinyland.repo.json OK:",m.repo.github)'
+    cd {{ root }} && python3 scripts/validate-lanes.py --schema docs/schemas/tinyland-repo-manifest.schema.json --instance tinyland.repo.json
+
+# Validate .github/lanes.json against the vendored lanes schema
+lanes-validate:
+    cd {{ root }} && python3 scripts/validate-lanes.py
+
+# Print resolved lanes as a table
+lanes-list:
+    @cd {{ root }} && jq -r '.lanes[] | [.name, (.trigger // "pull_request"), (.runner_class // "(default)"), (.e2e // false | tostring), .theme] | @tsv' .github/lanes.json | column -t -s $'\t'
 
 # Gitleaks scan of the working tree
 secrets-scan-dir:
@@ -131,6 +139,31 @@ flywheel-check *targets="//:svelte_check_test":
 # Populate external repos through the same cache/input-authority contract.
 flywheel-fetch target="//...":
     cd {{ root }} && bash scripts/gloriousflywheel-bazel.sh fetch {{ target }}
+
+# ─────────────────────────────────────────────
+# OpenTofu (declare-only spoke composition; DORMANT — never init/plan/apply here.
+# blahaj_installation_id=0; gf_modules_source is a placeholder; see tofu/README.md)
+# ─────────────────────────────────────────────
+
+# Laptop-safe format check (the local tofu gate).
+tofu-fmt-check:
+    cd {{ root }}/tofu && tofu fmt -check -diff
+
+# Validate syntax/types if modules are reachable; else fmt-check is the gate.
+tofu-validate:
+    @cd {{ root }}/tofu && tofu fmt -check -diff && \
+      if tofu init -backend=false -input=false >/dev/null 2>&1; then tofu validate; \
+      else echo "[tofu-validate] module fetch unavailable (placeholder source); fmt-check passed"; fi
+
+# OPERATOR / CLUSTER ONLY — never run on this personal spoke (apply-incapable here).
+tofu-init:
+    cd {{ root }}/tofu && tofu init -upgrade
+
+tofu-plan:
+    cd {{ root }}/tofu && tofu plan -out=tfplan
+
+tofu-apply:
+    cd {{ root }}/tofu && tofu apply tfplan
 
 # Cold-landing orientation: what this repo is and its entrypoints
 whoami:

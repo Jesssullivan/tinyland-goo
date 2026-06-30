@@ -116,6 +116,19 @@ secrets and no live endpoints:
   `tinyland-inc/ci-templates@v2.8.0`, referenced but deliberately not wired. The
   Pages **deploy** stays on pinned Node + corepack pnpm — no Nix on the publish
   path.
+- **`tofu/` (declare-only spoke composition) + `.github/lanes.json`.** A thin
+  public-safe `tofu/` composes the GloriousFlywheel `spoke-*` modules through a
+  `gf_modules_source` variable (placeholder default; the concrete private path is
+  operator-injected via a gitignored `*.auto.tfvars.local`), with
+  `blahaj_installation_id = 0` (the `blahaj_app_install` module never
+  instantiates), `ingress_target = ingress.invalid`, and an endpoint-free S3
+  backend. `owns_gitops_apply` / `owns_cloudflare_mutation` stay `false` — blahaj
+  owns admission + apply. Only `just tofu-fmt-check` is laptop-safe; **never** run
+  `just tofu-init/plan/apply` here (the module source + backend are unreachable by
+  construction). `.github/lanes.json` carries a single required `default` lane; no
+  `repository_dispatch` into blahaj is wired. Only the `lanes` + repo-manifest
+  schemas are vendored (`docs/schemas/`); the blahaj/reap/public-preview dispatch
+  schemas are deliberately NOT carried.
 
 ## What not to do
 

@@ -21,3 +21,8 @@ user.bazelrc
 *.auto.tfvars.local
 tofu/*.backend.hcl
 tofu/.terraform.lock.hcl
+tofu/.terraform/
+tofu/*.tfplan
+tofu/tfplan
+tofu/*.tfstate
+tofu/*.tfstate.*
