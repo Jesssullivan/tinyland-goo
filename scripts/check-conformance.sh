@@ -86,6 +86,15 @@ else
   ok "no Bazel files (Bazel/RBE intentionally declined per AGENTS.md)"
 fi
 
+# 8. Public-safe: no internal cluster endpoints / hostnames leak into the tree.
+# gitleaks only catches token shapes; this guards the private blahaj / tool-bus
+# topology (and slug-correctness on tofu/) before any org-only fragment is copied.
+if [[ -f scripts/scan-internal-endpoints.sh ]] && bash scripts/scan-internal-endpoints.sh >/dev/null 2>&1; then
+  ok "no internal cluster endpoints/hostnames in tree (public-safe scan)"
+else
+  no "internal cluster endpoint/hostname leak — run scripts/scan-internal-endpoints.sh"
+fi
+
 echo
 echo "summary: ${pass} pass, ${fail} fail"
 (( fail == 0 ))

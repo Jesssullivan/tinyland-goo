@@ -59,6 +59,11 @@ secrets-scan-dir:
 secrets-scan:
     cd {{ root }} && gitleaks git --config .gitleaks.toml --redact --verbose .
 
+# Public-safe: scan the tracked tree for leaked internal cluster endpoints/hostnames
+# (catches what gitleaks' token-shape rules miss; also asserts tofu/ slug-correctness)
+scan-endpoints:
+    cd {{ root }} && bash scripts/scan-internal-endpoints.sh
+
 # Cold-landing orientation: what this repo is and its entrypoints
 whoami:
     @echo "tinyland-goo — Tinyland static-spoke (adapter-static -> GitHub Pages)"

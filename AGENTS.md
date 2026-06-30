@@ -31,7 +31,11 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
 - **Check**: `just check` runs `svelte-check`. `just conformance` runs the
   static-spoke conformance checklist.
 - **Secrets**: `just secrets-scan-dir` (working tree) / `just secrets-scan`
-  (git history) via gitleaks.
+  (git history) via gitleaks. **Public-safe internal-endpoint scan**:
+  `just scan-endpoints` (also conformance item 8) blocks internal cluster
+  hostnames / `grpc://` endpoints / RFC1918 hosts that gitleaks' token-shape
+  rules miss — the gate that keeps the private blahaj / tool-bus topology out of
+  this public repo. Run it before copying any org-only scaffold fragment.
 
 ## Deploy — GitHub Pages (intentional divergence)
 
