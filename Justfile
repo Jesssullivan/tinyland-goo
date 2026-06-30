@@ -23,9 +23,10 @@ dev:
 dev-open:
     cd {{ root }} && pnpm run dev -- --open
 
-# Type-check (svelte-check)
+# Type-check (svelte-check) + prove the Flywheel enrollment contract stays wired
 check:
     cd {{ root }} && pnpm run check
+    cd {{ root }} && bash scripts/flywheel-enrollment-contract-test.sh
 
 # Production static build. BASE_PATH defaults to the GitHub Pages project path.
 build base_path="/tinyland-goo":
@@ -75,6 +76,61 @@ bazel-graph:
 # Fail if MODULE.bazel.lock drifts from MODULE.bazel + the pinned registry
 bazel-lock-verify:
     cd {{ root }} && bazelisk mod graph --lockfile_mode=error >/dev/null && echo "MODULE.bazel.lock in sync"
+
+# ─────────────────────────────────────────────
+# GloriousFlywheel (cache-first; executor opt-in). DORMANT on this personal
+# spoke: enrollment.substrateMode = compatibility-local-only (no reachable org
+# BAZEL_REMOTE_CACHE), so the flywheel-* recipes fail-fast HONESTLY off-cluster.
+# Endpoint authority lives ONLY in scripts/gloriousflywheel-bazel.sh;
+# .bazelrc.flywheel is endpoint-free. See AGENTS.md §Personal posture.
+# ─────────────────────────────────────────────
+
+# Advertised enrollment front door. Does not mint tokens.
+flywheel-enroll *args:
+    cd {{ root }} && bash scripts/flywheel-enroll.sh {{ args }}
+
+# Cold-landing diagnostic: what env an agent needs before flywheel work.
+# Off-cluster (no BAZEL_REMOTE_CACHE) it fail-fasts — the dormant-but-wired proof.
+flywheel-doctor:
+    cd {{ root }} && bash scripts/flywheel-doctor.sh
+
+# Fail-closed enrollment verifier for agents and CI.
+flywheel-verify:
+    cd {{ root }} && bash scripts/flywheel-verify.sh
+
+# Prove the advertised enroll/doctor/verify contract stays wired (in `just check`).
+flywheel-enrollment-contract-check:
+    cd {{ root }} && bash scripts/flywheel-enrollment-contract-test.sh
+
+# OPT-IN (NOT in `just check`): self-verify shared-cache attachment, fail-closed.
+# Reads enrollment.substrateMode from tinyland.repo.json as the expected mode;
+# compatibility-local-only here, so this is meaningful only post-re-home.
+cache-contract-strict:
+    cd {{ root }} && \
+      GF_BAZEL_SUBSTRATE_MODE="$(jq -r '.enrollment.substrateMode // "shared-cache-backed"' tinyland.repo.json)" \
+      GF_BAZEL_RUNNER_LABELS="${GF_BAZEL_RUNNER_LABELS:-tinyland-nix}" \
+      bash scripts/cache-attachment-contract.sh --strict
+
+# Validate cache attachment and print Bazel info through the wrapper.
+flywheel-info:
+    cd {{ root }} && bash scripts/gloriousflywheel-bazel.sh info
+
+# Bazel test via flywheel (defaults to the toolchain check suite).
+flywheel-test target="//:ci_validation_suite":
+    cd {{ root }} && bash scripts/gloriousflywheel-bazel.sh test {{ target }}
+
+# Cache-first, READ-ONLY remote typecheck (svelte-check). Never selects an
+# executor; off-cluster the wrapper fail-fasts honestly. Endpoint stays env auth.
+flywheel-check *targets="//:svelte_check_test":
+    cd {{ root }} && \
+      GF_BAZEL_SUBSTRATE_MODE=shared-cache-backed \
+      GF_BAZEL_REMOTE_UPLOAD=false \
+      BAZEL_REMOTE_EXECUTOR= \
+      bash scripts/gloriousflywheel-bazel.sh test --config=ci-cached {{ targets }}
+
+# Populate external repos through the same cache/input-authority contract.
+flywheel-fetch target="//...":
+    cd {{ root }} && bash scripts/gloriousflywheel-bazel.sh fetch {{ target }}
 
 # Cold-landing orientation: what this repo is and its entrypoints
 whoami:

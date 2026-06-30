@@ -24,7 +24,7 @@ patterns=(
   '(10|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 )
 # Safe even if matched: loopback / documented uppercase or angle placeholders.
-allow='localhost|127\.0\.0\.1|0\.0\.0\.0|ingress\.invalid|\.invalid|example\.(com|org|net|invalid)|ORG/REPO|HOST:PORT|<[a-zA-Z._-]+>'
+allow='localhost|127\.0\.0\.1|0\.0\.0\.0|ingress\.invalid|\.invalid|example\.(com|org|net|invalid|internal)|ORG/REPO|HOST:PORT|<[a-zA-Z._-]+>'
 
 # This scanner and the gitleaks config legitimately contain the literals above.
 self_exclude='^(scripts/scan-internal-endpoints\.sh|\.gitleaks\.toml)$'

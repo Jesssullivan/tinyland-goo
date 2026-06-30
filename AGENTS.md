@@ -89,6 +89,24 @@ If any of these become warranted, copy them verbatim from
 `tinyland-inc/site.scaffold` and update `tinyland.repo.json` (`taxonomy.layers`,
 `contracts.nix`) and this section accordingly.
 
+## Personal posture — dormant org surfaces
+
+This is a **public personal-account** spoke, so org-only surfaces are carried
+**wired-but-dormant** — real house parity + a one-flip activation path, with no
+secrets and no live endpoints:
+
+- **GloriousFlywheel RBE/cache binding.** `.bazelrc.flywheel` (endpoint-free) +
+  `scripts/gloriousflywheel-bazel.sh` (the **only** endpoint authority) + the
+  `just flywheel-*` recipes are present but inert. `enrollment.substrateMode` is
+  `compatibility-local-only` (no reachable org `BAZEL_REMOTE_CACHE`), so
+  `just flywheel-doctor` fail-fasts honestly and the `flywheel-*` recipes do no
+  work off-cluster. The live remote-build / cache-first speed win is
+  **contingent on re-homing under `tinyland-inc`**, not a property of this repo.
+  `just cache-contract-strict` is **opt-in** and deliberately NOT in `just check`
+  (it would assert an unattained cache). Never write raw `--remote_cache=` /
+  `--remote_executor=` endpoints anywhere — the wrapper contract is endpoint-free
+  (conformance item 7 + `just scan-endpoints` enforce this).
+
 ## What not to do
 
 - Don't call `npm`/`vite` outside the Justfile (add a recipe instead).
