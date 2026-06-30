@@ -1,0 +1,72 @@
+"""
+tinyland-goo - Bazel Module Configuration
+
+TOOLCHAIN-ONLY module-graph integrity proof. The canonical site build is
+`pnpm run build` (adapter-static -> GitHub Pages) and is NEVER on the Bazel
+critical path. Bazel exists here only so `bazelisk mod graph` proves the
+dependency/toolchain graph resolves against an immutable-pinned
+tinyland-inc/bazel-registry ref + BCR. See AGENTS.md.
+
+This leaf has 0 production deps, so the @tummycrypt/* building-block modules the
+fuller scaffold pulls are intentionally NOT depended on here (decision: keep the
+graph toolchain-only; the inhouse-package-parity gate is therefore dropped). Add
+a @tummycrypt bazel_dep only if a vendored asset genuinely imports it.
+"""
+
+module(
+    name = "tinyland_goo",
+    version = "0.1.0",
+    compatibility_level = 1,
+)
+
+# Core
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
+bazel_dep(name = "rules_pkg", version = "1.1.0")
+
+# JS/TS toolchain (Aspect)
+bazel_dep(name = "rules_nodejs", version = "6.7.3")
+bazel_dep(name = "aspect_rules_js", version = "2.9.1")
+bazel_dep(name = "aspect_rules_ts", version = "3.8.4")
+bazel_dep(name = "aspect_rules_swc", version = "2.6.1")
+
+# Node 22.13.1
+node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
+node.toolchain(node_version = "22.13.1")
+
+# pnpm 10.13.1
+pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
+pnpm.pnpm(
+    name = "pnpm",
+    pnpm_version = "10.13.1",
+)
+use_repo(pnpm, "pnpm")
+
+# npm via pnpm-lock.yaml. Repo name "npm" matches the Aspect convention.
+npm = use_extension("@aspect_rules_js//npm:extensions.bzl", "npm")
+npm.npm_translate_lock(
+    name = "npm",
+    npmrc = "//:.npmrc",
+    pnpm_lock = "//:pnpm-lock.yaml",
+    data = [
+        "//:package.json",
+        "//:pnpm-workspace.yaml",
+    ],
+)
+use_repo(npm, "npm")
+
+# TypeScript 5.9.3 (rules_ts cannot parse caret ranges — exact required)
+rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
+rules_ts_ext.deps(ts_version = "5.9.3")
+use_repo(rules_ts_ext, "npm_typescript")
+
+# SWC for any future ts_project targets
+swc = use_extension("@aspect_rules_swc//swc:extensions.bzl", "swc")
+swc.toolchain(
+    name = "swc",
+    swc_version = "v1.10.12",
+)
+use_repo(swc, "swc_toolchains")
+
+register_toolchains("@swc_toolchains//:all")

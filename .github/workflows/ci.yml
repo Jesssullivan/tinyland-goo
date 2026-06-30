@@ -10,7 +10,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  # Deploy-critical mirror: FAST Node + corepack pnpm (NO Nix on this path,
+  # matching the GitHub Pages publish job). secrets + public-safe leak scan +
+  # conformance + typecheck + Flywheel enrollment contract + static build.
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 12
@@ -29,11 +36,61 @@ jobs:
             | sudo tar -xz -C /usr/local/bin gitleaks
       - name: Secrets scan (working tree)
         run: gitleaks dir --config .gitleaks.toml --redact --verbose .
+      - name: Internal-endpoint leak scan (public-safe)
+        run: bash scripts/scan-internal-endpoints.sh
 
-      - run: npm install
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
       - name: Conformance (static-spoke subset)
         run: bash scripts/check-conformance.sh
       - name: Type check
-        run: npm run check
+        run: pnpm run check
+      - name: Unit tests (vitest)
+        run: pnpm run test:unit
+      - name: Flywheel enrollment contract
+        run: bash scripts/flywheel-enrollment-contract-test.sh
       - name: Build (project base path)
-        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" npm run build
+        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" pnpm run build
+
+  # Toolchain module-graph integrity proof. GATED/OPTIONAL: runs on push to main
+  # + manual dispatch, NOT on every PR (Bazel is not the canonical build — the
+  # site builds via pnpm). Proves the dependency graph resolves against the
+  # sha-pinned registry and that MODULE.bazel.lock has not drifted.
+  bazel-graph:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install bazelisk
+        run: npm install -g @bazel/bazelisk
+      - name: Module graph resolves (sha-pinned registry)
+        run: bazelisk mod graph
+      - name: MODULE.bazel.lock has not drifted
+        run: bazelisk mod graph --lockfile_mode=error >/dev/null
+
+  # GloriousFlywheel remote cache accelerator. DORMANT: skips-green unless the
+  # operator sets repo/org variable FLYWHEEL_ENABLED=true and supplies a
+  # reachable BAZEL_REMOTE_CACHE (only meaningful after re-homing under
+  # tinyland-inc). The endpoint stays env authority; nothing is baked here.
+  flywheel:
+    if: vars.FLYWHEEL_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install bazelisk
+        run: npm install -g @bazel/bazelisk
+      - name: Flywheel cache attachment (dormant until re-home)
+        env:
+          BAZEL_REMOTE_CACHE: ${{ vars.BAZEL_REMOTE_CACHE }}
+          GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
+          GF_BAZEL_RUNNER_LABELS: tinyland-nix
+        run: bash scripts/flywheel-doctor.sh

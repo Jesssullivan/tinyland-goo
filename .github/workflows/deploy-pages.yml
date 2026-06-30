@@ -23,9 +23,12 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: '.nvmrc'
-      - run: npm install
+      # Pinned-Node publish path — NO Nix on deploy (see AGENTS.md). pnpm via corepack.
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
       - name: Build (project base path = /<repo>)
-        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" npm run build
+        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" pnpm run build
         env:
           NODE_ENV: production
       - uses: actions/upload-pages-artifact@v5

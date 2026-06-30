@@ -1,0 +1,57 @@
+# tinyland-goo Bazel Configuration
+#
+# Bazel 8 + Bzlmod. Two-registry chain: tinyland-inc/bazel-registry first
+# (pinned to an IMMUTABLE commit sha — not main/ — so in-place registry
+# mutations cannot re-break cold resolution; see TIN-2235), then BCR. The site
+# build remains `pnpm run build`; Bazel exists for module-graph integrity proofs.
+
+common --enable_bzlmod
+common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/7200cb347e750a66642153cfdb989972c9855982/
+common --registry=https://bcr.bazel.build
+
+# Build performance
+build --jobs=auto
+build --worker_sandboxing
+build --disk_cache=~/.cache/bazel-tinyland-goo
+build --keep_going
+build --show_timestamps
+
+# Flywheel cache + REAPI behavior lives in .bazelrc.flywheel (added in the
+# Flywheel-binding phase), but endpoint authority lives ONLY in
+# scripts/gloriousflywheel-bazel.sh. The wrapper passes --remote_cache and
+# optional --remote_executor explicitly from validated env. The file is optional
+# (try-import) and endpoint-free; see docs/CI-SCHEMA.md §5.
+try-import %workspace%/.bazelrc.flywheel
+
+# rules_ts: skip lib check is required for SvelteKit-style declaration files.
+build --@aspect_rules_ts//ts:skipLibCheck=always
+build --spawn_strategy=sandboxed,worker,local
+
+# CI base config. Empty the disk cache in CI so a green cache-backed build proves
+# the REMOTE shared cache rather than an incidental local-disk hit (real-attach
+# discipline). The cache-backed enrollment lane layers --config=ci-cached on top.
+build:ci --disk_cache=
+build:ci --remote_retries=3
+build:ci --jobs=auto
+build:ci --color=no
+build:ci --curses=no
+build:ci --show_progress_rate_limit=30
+build:ci --noshow_loading_progress
+
+# ci-cached: endpoint-free shared-cache behavior. The workflow supplies
+# --remote_cache + upload policy at invocation after validating
+# BAZEL_REMOTE_CACHE via scripts/cache-attachment-contract.sh. CACHE-FIRST only:
+# this never selects a remote executor.
+build:ci-cached --config=ci
+build:ci-cached --remote_upload_local_results=false
+build:ci-cached --remote_download_minimal
+build:ci-cached --remote_timeout=60
+
+# Test output
+test --test_output=errors
+test --test_summary=detailed
+test --test_verbose_timeout_warnings
+test --test_timeout=120,600,1800,3600
+
+# Local operator overrides (endpoints, creds) — gitignored, never committed.
+try-import %workspace%/user.bazelrc

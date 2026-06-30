@@ -1,6 +1,7 @@
 {
-	"$schema": "https://raw.githubusercontent.com/tinyland-inc/site.scaffold/main/docs/schemas/tinyland-repo-manifest.schema.json",
+	"$schema": "./docs/schemas/tinyland-repo-manifest.schema.json",
 	"schema_version": 1,
+	"scaffold_tag": "v0.1.0",
 	"repo": {
 		"name": "tinyland-goo",
 		"github": "Jesssullivan/tinyland-goo",
@@ -9,12 +10,18 @@
 	},
 	"taxonomy": {
 		"primary_role": "static-spoke",
-		"layers": ["org-wide-repo-contract", "static-spoke"]
+		"layers": ["org-wide-repo-contract", "bazel-package-cache-rbe", "static-spoke"]
+	},
+	"enrollment": {
+		"forgeScope": "Jesssullivan",
+		"operatorOverlay": "jesssullivan-infra",
+		"executionPool": "tinyland-nix",
+		"substrateMode": "compatibility-local-only"
 	},
 	"contracts": {
 		"agent_contract": "AGENTS.md",
 		"just": "Justfile",
-		"nix": "none",
+		"nix": "flake.nix",
 		"github_actions": ".github/workflows",
 		"secrets_scan": "gitleaks",
 		"conformance": "just conformance"
@@ -34,13 +41,14 @@
 		"content_authority": "self",
 		"ci_templates": "tinyland-inc/ci-templates",
 		"cache_rbe_authority": "tinyland-inc/GloriousFlywheel",
+		"tofu_module_authority": "tinyland-inc/GloriousFlywheel",
 		"package_registry": "tinyland-inc/bazel-registry"
 	},
 	"supply_chain": {
 		"sbom": {
-			"status": "not-required",
+			"status": "recipe-available",
 			"formats": ["CycloneDX JSON", "SPDX JSON"],
-			"notes": "Leaf static spoke; SBOM not required. Adopt the scaffold `just sbom` recipe if this grows dependencies worth attesting."
+			"notes": "Run `just sbom` to generate ignored local SBOM artifacts under build/sbom/ (syft, via the Nix devshell). Org-only surfaces (tofu/, the Flywheel binding, lanes) are carried documented-but-dormant — see AGENTS.md §Personal posture."
 		}
 	}
 }

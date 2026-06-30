@@ -7,3 +7,22 @@ node_modules/
 !.env.example
 vite.config.ts.timestamp-*
 .gstack/
+
+# Nix / direnv (local devshell)
+.direnv/
+
+# SBOM artifacts (just sbom)
+/build/sbom/
+
+# Local operator endpoint/credential escape-hatches — NEVER commit live values.
+# gitleaks only catches token shapes, not raw internal hostnames; keep these out.
+user.bazelrc
+.envrc.local
+*.auto.tfvars.local
+tofu/*.backend.hcl
+tofu/.terraform.lock.hcl
+tofu/.terraform/
+tofu/*.tfplan
+tofu/tfplan
+tofu/*.tfstate
+tofu/*.tfstate.*
