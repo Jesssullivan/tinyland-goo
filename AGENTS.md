@@ -106,6 +106,16 @@ secrets and no live endpoints:
   (it would assert an unattained cache). Never write raw `--remote_cache=` /
   `--remote_executor=` endpoints anywhere — the wrapper contract is endpoint-free
   (conformance item 7 + `just scan-endpoints` enforce this).
+- **Self-contained CI (no `ci-templates` reusable workflows).** A personal repo
+  cannot reach the org `tinyland-inc/ci-templates@vX` reusable workflows, so
+  `.github/workflows/ci.yml` runs a self-equivalent **Node + pnpm** gate
+  (secrets + internal-endpoint scan + conformance + typecheck + Flywheel contract
+  + build), with the `bazel-graph` job gated to non-PR events and the `flywheel`
+  job gated on `vars.FLYWHEEL_ENABLED`. This is documented **MANUAL drift** from
+  conformance item 2 (ci-templates SemVer pin); the re-home path is
+  `tinyland-inc/ci-templates@v2.8.0`, referenced but deliberately not wired. The
+  Pages **deploy** stays on pinned Node + corepack pnpm — no Nix on the publish
+  path.
 
 ## What not to do
 
