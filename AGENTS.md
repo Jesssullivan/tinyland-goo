@@ -63,10 +63,18 @@ and `static/.nojekyll` is required so `_app/` assets are served.
 These site.scaffold/darkmap surfaces are intentionally **not** adopted; this is
 documented conformance, not drift:
 
-- **Bazel + `.bazelrc.flywheel` + RBE/GloriousFlywheel.** Across every Tinyland
-  spoke the canonical build is `vite build` — Bazel/RBE is an optional CI cache
-  accelerator, never on the static build's critical path. For a leaf `vite`
-  build it is pure maintenance cost with no deploy-path benefit. RBE is N/A.
+- **Bazel — ADOPTED as the dependency SSOT / module-graph integrity proof
+  (toolchain-only, 2026-06-29).** Bazel does **not** build the site — the
+  canonical build stays `pnpm run build` (adapter-static), never on the deploy
+  critical path. What is adopted is a toolchain-only `MODULE.bazel` (no
+  `@tummycrypt/*` deps; this leaf has 0 production deps) with the registry chain
+  pinned to an **immutable** `tinyland-inc/bazel-registry` commit sha (not
+  `main/`, per TIN-2235), exercised via `just bazel-graph` (`bazelisk mod
+  graph`) as a gated/optional proof. The old "pure maintenance cost" stance is
+  overturned on house bazel-first / remote-everything fluency grounds. The
+  Flywheel RBE/cache binding (`.bazelrc.flywheel` + the wrapper) is wired
+  **endpoint-free but DORMANT** — see *Personal posture*; RBE never selects an
+  executor for this leaf.
 - **Nix flake + direnv — ADOPTED (local dev only, 2026-06-29).** Cross-spoke
   toolchain homogeneity + `CI == local` on low-power machines became the stated
   goal (the original escape clause), so a `flake.nix` devshell now backs local

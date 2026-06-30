@@ -64,6 +64,18 @@ secrets-scan:
 scan-endpoints:
     cd {{ root }} && bash scripts/scan-internal-endpoints.sh
 
+# ─────────────────────────────────────────────
+# Bazel (toolchain-only module-graph integrity proof; site build stays pnpm)
+# ─────────────────────────────────────────────
+
+# Prove the dependency/toolchain module graph resolves (gated/optional in CI)
+bazel-graph:
+    cd {{ root }} && bazelisk mod graph
+
+# Fail if MODULE.bazel.lock drifts from MODULE.bazel + the pinned registry
+bazel-lock-verify:
+    cd {{ root }} && bazelisk mod graph --lockfile_mode=error >/dev/null && echo "MODULE.bazel.lock in sync"
+
 # Cold-landing orientation: what this repo is and its entrypoints
 whoami:
     @echo "tinyland-goo — Tinyland static-spoke (adapter-static -> GitHub Pages)"

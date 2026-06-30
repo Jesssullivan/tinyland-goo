@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    target-branch: 'main'
+    open-pull-requests-limit: 10
+    ignore:
+      # Skeleton 4.15.2 + Tailwind v4 are pinned exact and load-bearing (the
+      # skeletonTailwindV4Compat shim tracks them); upgrades need a ticketed proof.
+      - dependency-name: '@skeletonlabs/skeleton'
+      - dependency-name: '@skeletonlabs/skeleton-svelte'
+      - dependency-name: 'tailwindcss'
+        update-types:
+          - 'version-update:semver-major'
+      # Toolchain pins mirrored in MODULE.bazel — majors need a ticketed proof.
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
+    groups:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    target-branch: 'main'
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types:
+          - 'minor'
+          - 'patch'

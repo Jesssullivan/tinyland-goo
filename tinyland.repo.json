@@ -9,7 +9,7 @@
 	},
 	"taxonomy": {
 		"primary_role": "static-spoke",
-		"layers": ["org-wide-repo-contract", "static-spoke"]
+		"layers": ["org-wide-repo-contract", "bazel-package-cache-rbe", "static-spoke"]
 	},
 	"contracts": {
 		"agent_contract": "AGENTS.md",
@@ -34,6 +34,7 @@
 		"content_authority": "self",
 		"ci_templates": "tinyland-inc/ci-templates",
 		"cache_rbe_authority": "tinyland-inc/GloriousFlywheel",
+		"tofu_module_authority": "tinyland-inc/GloriousFlywheel",
 		"package_registry": "tinyland-inc/bazel-registry"
 	},
 	"supply_chain": {

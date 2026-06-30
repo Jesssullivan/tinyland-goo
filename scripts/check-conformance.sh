@@ -77,13 +77,21 @@ else
   no ".github/workflows/deploy-pages.yml must deploy via actions/deploy-pages"
 fi
 
-# 7. This spoke declines Bazel entirely (see AGENTS.md). Assert no Bazel files
-# exist — if Bazel is later adopted, copy the endpoint-free .bazelrc.flywheel
-# from site.scaffold verbatim and update this check + the manifest layers.
-if compgen -G "BUILD.bazel" >/dev/null || compgen -G "MODULE.bazel" >/dev/null || compgen -G ".bazelrc*" >/dev/null; then
-  no "Bazel files present but this spoke declines Bazel; if intentional, adopt the scaffold Flywheel contract and update AGENTS.md/manifest"
+# 7. Bazel is adopted as the dependency-SSOT / module-graph integrity proof
+# (toolchain-only; the canonical site build stays pnpm/vite, never on deploy).
+# Assert the binding is endpoint-free — no raw remote cache/executor endpoints in
+# .bazelrc / .bazelrc.flywheel (endpoint authority lives only in the wrapper) —
+# and that the registry is pinned to an IMMUTABLE commit sha, not main/.
+if [[ -f MODULE.bazel ]]; then
+  if grep -hnE '(--remote_cache=|--remote_executor=)' .bazelrc .bazelrc.flywheel 2>/dev/null | grep -qvE '^[[:space:]]*#'; then
+    no "raw --remote_cache=/--remote_executor= endpoint in .bazelrc(.flywheel) — must stay endpoint-free (wrapper-only)"
+  elif grep -qE 'bazel-registry/[0-9a-f]{40}/' .bazelrc 2>/dev/null; then
+    ok "Bazel adopted (toolchain-only); registry pinned to an immutable sha; rc files endpoint-free"
+  else
+    no ".bazelrc must pin tinyland-inc/bazel-registry to an immutable commit sha (not main/)"
+  fi
 else
-  ok "no Bazel files (Bazel/RBE intentionally declined per AGENTS.md)"
+  ok "no Bazel files (Bazel intentionally not adopted)"
 fi
 
 # 8. Public-safe: no internal cluster endpoints / hostnames leak into the tree.
