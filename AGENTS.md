@@ -125,18 +125,27 @@ secrets and no live endpoints:
   plane** is **cluster-internal** (a gRPC service reachable only inside the
   cluster network), so a hosted runner mints a token but cannot reach it —
   a real cache hit needs CI on the in-cluster `tinyland-nix` ARC lane; and (b)
-  Bazel is toolchain-only and never builds the site (`pnpm run build` does), so
-  the realized build win is **~nil**. The post-enrollment baseline is
-  `shared-cache-backed` (executor-backed is GF-dogfood-first). `just
-  cache-contract-strict` is **opt-in** (not in `just check`). Never write raw
-  `--remote_cache=` / `--remote_executor=` endpoints — the wrapper contract is
-  endpoint-free (conformance item 7 + `just scan-endpoints` enforce this).
+  Bazel adds a `//:sveltekit_vite_build_smoke` RBE action (the Bazel-SSOT build
+  proof) but the canonical Pages build stays `pnpm run build`, so the realized
+  offload is **~nil** for this leaf. **Executor lace-up is WIRED but skip-green:**
+  the executor-backed CI lane (`scripts/mint-gf-reapi-token-from-exchange.sh` +
+  `gf-reapi-bazel-credential-helper.mjs` + `just flywheel-executor-check`, the
+  local machine a thin Bazel driver) is double-gated on
+  `vars.FLYWHEEL_EXECUTOR_ENABLED` + same-repo, and the cache-first lane on
+  `vars.FLYWHEEL_ENABLED` — both OFF by default. Endpoints are NEVER baked (the
+  mint script defaults to the **public** exchange ingress; the cell host is
+  runtime/operator authority). Flip on only after ≥2 cold-start `gf-reapi-cell`
+  proofs (the cell is scale-to-zero today). `just cache-contract-strict` is
+  **opt-in**. Never write raw `--remote_cache=` / `--remote_executor=` endpoints —
+  the wrapper contract is endpoint-free (conformance item 7 + `just scan-endpoints`
+  enforce this).
 - **CI runs through the Nix devshell (CI == local == deploy).**
   `.github/workflows/ci.yml` runs every gate via `nix develop --command just
   <recipe>` (secrets + internal-endpoint scan + conformance + check + build),
-  with a `bazel-graph` job (Nix) and a `flywheel` job that is gated on
-  `vars.FLYWHEEL_ENABLED` and `runs-on: tinyland-nix` (the in-cluster ARC lane
-  where the cache is reachable). The org `tinyland-inc/ci-templates@vX` reusable
+  with a `bazel-graph` job (Nix) and TWO in-cluster `tinyland-nix` flywheel jobs —
+  cache-first (gated `vars.FLYWHEEL_ENABLED`) + a non-required executor-backed RBE
+  proof lane (gated `vars.FLYWHEEL_EXECUTOR_ENABLED`, same-repo only), both OFF by
+  default. The org `tinyland-inc/ci-templates@vX` reusable
   workflows are not consumed (a personal repo's `uses:` reach is a separate
   GitHub-permissions question from cache-attach, which the OIDC exchange
   dissolves); this is documented **MANUAL drift** from conformance item 2. The

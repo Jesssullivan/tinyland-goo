@@ -173,6 +173,16 @@ flywheel-check *targets="//:svelte_check_test":
       BAZEL_REMOTE_EXECUTOR= \
       bash scripts/gloriousflywheel-bazel.sh test --config=ci-cached {{ targets }}
 
+# Executor-backed RBE check/test (the PROOF lane). Needs an in-cluster executor:
+# BAZEL_REMOTE_CACHE + BAZEL_REMOTE_EXECUTOR must be present (the wrapper fails
+# fast otherwise). Runs the full validation suite (check + unit + vite-build
+# smoke) as remotely-executed actions — the local machine is a thin Bazel driver.
+flywheel-executor-check *targets="//:ci_validation_suite":
+    cd {{ root }} && \
+      GF_BAZEL_SUBSTRATE_MODE=executor-backed \
+      GF_BAZEL_REMOTE_UPLOAD=false \
+      bash scripts/gloriousflywheel-bazel.sh test --config=flywheel-executor {{ targets }}
+
 # Populate external repos through the same cache/input-authority contract.
 flywheel-fetch target="//...":
     cd {{ root }} && bash scripts/gloriousflywheel-bazel.sh fetch {{ target }}

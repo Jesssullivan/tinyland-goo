@@ -85,15 +85,37 @@ vitest.vitest_test(
     visibility = ["//visibility:public"],
 )
 
+# BUILD-authority RBE target: Bazel runs `svelte-kit sync` + `vite build` as a
+# remotely-executable action (the executor lane exercises this). The canonical
+# Pages publish still runs `pnpm run build` — this is the Bazel-SSOT build proof,
+# never the deploy path. Tagged gloriousflywheel-rbe-candidate to mirror the fleet.
+js_test(
+    name = "sveltekit_vite_build_smoke",
+    data = [
+        ":app_srcs",
+        ":node_modules",
+        ":sveltekit_types",
+    ],
+    entry_point = "scripts/bazel/run-sveltekit-vite-build.mjs",
+    tags = [
+        "flywheel-eligible",
+        "gloriousflywheel-rbe-candidate",
+        "web-build-runtime-authority",
+    ],
+    timeout = "long",
+    visibility = ["//visibility:public"],
+)
+
 test_suite(
     name = "ci_validation_suite",
-    # A test_suite's tags are a positive FILTER over members (both members carry
+    # A test_suite's tags are a positive FILTER over members (all carry
     # flywheel-eligible), keeping it under the flywheel-executor tag filter. Do
     # NOT add "manual" — it would drop the members and resolve to zero targets.
     tags = ["flywheel-eligible"],
     tests = [
         ":svelte_check_test",
         ":unit_tests",
+        ":sveltekit_vite_build_smoke",
     ],
 )
 
