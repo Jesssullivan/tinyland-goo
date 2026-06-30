@@ -1,5 +1,12 @@
 name: Deploy to GitHub Pages
 
+# Personal GitHub Pages deploy for the tinyland-goo static spoke.
+# Builds through the full scaffold toolchain (Nix devshell + `just`) so
+# CI == local == deploy — this is the house DEFAULT deploy lane (TIN-2230
+# Option A), the same Nix path the canonical site.scaffold and the live
+# cousin formal_transfemme_sewing use. (An earlier revision wrongly ran this
+# on pinned Node + corepack pnpm; that was a self-inflicted divergence.)
+
 on:
   push:
     branches: [main]
@@ -17,20 +24,24 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+
+      - uses: cachix/install-nix-action@v31
         with:
-          node-version-file: '.nvmrc'
-      # Pinned-Node publish path — NO Nix on deploy (see AGENTS.md). pnpm via corepack.
-      - name: Enable corepack (pnpm)
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - name: Build (project base path = /<repo>)
-        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" pnpm run build
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Install workspace dependencies
+        run: nix develop --command just setup
+
+      - name: Build static site (project base path = /tinyland-goo)
+        run: nix develop --command just build
         env:
           NODE_ENV: production
+          BASE_PATH: /tinyland-goo
+
       - uses: actions/upload-pages-artifact@v5
         with:
           path: build

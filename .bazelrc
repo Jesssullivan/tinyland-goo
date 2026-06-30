@@ -1,12 +1,13 @@
 # tinyland-goo Bazel Configuration
 #
-# Bazel 8 + Bzlmod. Two-registry chain: tinyland-inc/bazel-registry first
-# (pinned to an IMMUTABLE commit sha — not main/ — so in-place registry
-# mutations cannot re-break cold resolution; see TIN-2235), then BCR. The site
-# build remains `pnpm run build`; Bazel exists for module-graph integrity proofs.
+# Bazel 8 + Bzlmod. Two-registry chain: tinyland-inc/bazel-registry/main first
+# (matching the fleet — the canonical scaffold, the hub, and the cousin all
+# track main), then BCR. TIN-2235 is an UPSTREAM append-only registry guard +
+# lock re-cut, not a consumer-side sha-pin; pin a sha only if drift actually
+# bites. The site build remains `pnpm run build`; Bazel is module-graph proof.
 
 common --enable_bzlmod
-common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/7200cb347e750a66642153cfdb989972c9855982/
+common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/
 common --registry=https://bcr.bazel.build
 
 # Build performance

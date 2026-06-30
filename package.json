@@ -28,21 +28,21 @@
 		"@skeletonlabs/skeleton": "4.15.2",
 		"@skeletonlabs/skeleton-svelte": "4.15.2",
 		"@sveltejs/adapter-static": "^3.0.10",
-		"@sveltejs/kit": "^2.61.1",
+		"@sveltejs/kit": "^2.68.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
-		"@tailwindcss/vite": "^4.2.2",
-		"@types/node": "^22.19.19",
+		"@tailwindcss/vite": "^4.3.2",
+		"@types/node": "^22.20.0",
 		"@vitest/coverage-v8": "^4.1.9",
-		"svelte": "^5.55.4",
-		"svelte-check": "^4.4.5",
-		"tailwindcss": "^4.2.2",
-		"typescript": "^5.9.3",
-		"vite": "^8.0.14",
+		"svelte": "^5.56.4",
+		"svelte-check": "^4.7.1",
+		"tailwindcss": "^4.3.2",
+		"typescript": "6.0.3",
+		"vite": "^8.1.0",
 		"vitest": "^4.1.9"
 	},
 	"pnpm": {
 		"overrides": {
-			"vite": "^8.0.14"
+			"vite": "^8.1.0"
 		},
 		"onlyBuiltDependencies": [
 			"@tailwindcss/oxide",
