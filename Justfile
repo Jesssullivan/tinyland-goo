@@ -1,6 +1,7 @@
 # tinyland-goo — UV-reactive bed glue project site (static SvelteKit SPA)
 # Single authoritative entrypoint. Quick start: just setup && just dev
-# Drawn from tinyland-inc/site.scaffold; npm-based for GitHub Pages portability.
+# Drawn from tinyland-inc/site.scaffold. pnpm + a local Nix devshell (`nix
+# develop`); the GitHub Pages publish job stays on pinned Node (no Nix on deploy).
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 root := justfile_directory()
@@ -9,34 +10,34 @@ root := justfile_directory()
 default:
     @just --list --unsorted
 
-# Install dependencies
+# Install dependencies (frozen lockfile — pnpm is the dependency SSOT)
 setup:
-    cd {{ root }} && npm install
+    cd {{ root }} && pnpm install --frozen-lockfile
     @echo "Setup complete. Run 'just dev'."
 
 # Start the dev server
 dev:
-    cd {{ root }} && npm run dev
+    cd {{ root }} && pnpm run dev
 
 # Start the dev server and open a browser
 dev-open:
-    cd {{ root }} && npm run dev -- --open
+    cd {{ root }} && pnpm run dev -- --open
 
 # Type-check (svelte-check)
 check:
-    cd {{ root }} && npm run check
+    cd {{ root }} && pnpm run check
 
 # Production static build. BASE_PATH defaults to the GitHub Pages project path.
 build base_path="/tinyland-goo":
-    cd {{ root }} && BASE_PATH="{{ base_path }}" npm run build
+    cd {{ root }} && BASE_PATH="{{ base_path }}" pnpm run build
 
 # Build for local root preview (no base path)
 build-local:
-    cd {{ root }} && npm run build
+    cd {{ root }} && pnpm run build
 
 # Preview the production build locally (root base)
 preview: build-local
-    cd {{ root }} && npm run preview
+    cd {{ root }} && pnpm run preview
 
 # ─────────────────────────────────────────────
 # Conformance & security (site.scaffold static-spoke subset)
@@ -62,7 +63,7 @@ secrets-scan:
 whoami:
     @echo "tinyland-goo — Tinyland static-spoke (adapter-static -> GitHub Pages)"
     @echo "Deploy:  jesssullivan.github.io/tinyland-goo"
-    @echo "Entry:   just <recipe>  (npm; no Nix/Bazel — see AGENTS.md)"
+    @echo "Entry:   just <recipe>  (pnpm; local Nix devshell — see AGENTS.md)"
 
 # Pre-push gate: conformance + typecheck + secrets + build
 ci: conformance check secrets-scan-dir build-local

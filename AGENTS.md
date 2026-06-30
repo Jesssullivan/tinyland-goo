@@ -20,9 +20,12 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
 - **DX/AX**: `Justfile` is the single source of truth. Invoke through
   `just <recipe>`; do not call `npm` / `vite` directly outside the Justfile
   unless adding a recipe.
-- **Toolchain**: npm + `.nvmrc` (Node 22). No Nix devshell, no `direnv` — see
-  Declined surfaces. CI uses `actions/setup-node` against `.nvmrc`.
-- **Build**: `just build` runs `npm run build` (SvelteKit **adapter-static**)
+- **Toolchain**: **pnpm** (pinned via `packageManager` in `package.json`) + a
+  Nix `flake.nix`/`direnv` devshell for **local** dev (`nix develop`). `.nvmrc`
+  (Node 22) is retained for the Pages publish job. The GitHub Pages deploy and CI
+  build run on **pinned Node + corepack pnpm** — Nix is local-dev-only and never
+  on the publish path (see Deploy + Declined surfaces).
+- **Build**: `just build` runs `pnpm run build` (SvelteKit **adapter-static**)
   and emits a fully static, prerendered site in `build/`. `BASE_PATH` sets the
   GitHub Pages project base (`/tinyland-goo`); `just build-local` builds at root.
 - **Check**: `just check` runs `svelte-check`. `just conformance` runs the
@@ -60,8 +63,11 @@ documented conformance, not drift:
   spoke the canonical build is `vite build` — Bazel/RBE is an optional CI cache
   accelerator, never on the static build's critical path. For a leaf `vite`
   build it is pure maintenance cost with no deploy-path benefit. RBE is N/A.
-- **Nix flake + direnv.** npm + `.nvmrc` is adequate and simpler here; adopt a
-  flake only if cross-spoke toolchain homogeneity becomes a stated goal.
+- **Nix flake + direnv — ADOPTED (local dev only, 2026-06-29).** Cross-spoke
+  toolchain homogeneity + `CI == local` on low-power machines became the stated
+  goal (the original escape clause), so a `flake.nix` devshell now backs local
+  development and the non-deploy CI accelerator jobs. It is **not** on the
+  GitHub Pages publish path, which stays on pinned Node + corepack pnpm.
 - **OpenTofu / Kustomize / Containerfile / adapter-node / `/api/*` routes.**
   No runtime — this is a static site.
 - **`lanes.json` / Blahaj ephemeral envs / ci-templates `spoke-ci`.** No

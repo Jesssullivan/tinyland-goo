@@ -5,11 +5,20 @@
 	"type": "module",
 	"description": "Tinyland static lab notebook for UV-reactive 3D-printer bed glue plus paraffin wax research tracks for bike chain wax and hair removal wax.",
 	"homepage": "https://jesssullivan.github.io/tinyland-goo/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Jesssullivan/tinyland-goo.git"
+	},
+	"packageManager": "pnpm@10.13.1",
+	"engines": {
+		"node": ">=22 <25"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"devDependencies": {
 		"@fontsource/inter": "^5.2.8",
@@ -26,7 +35,13 @@
 		"typescript": "^5.9.3",
 		"vite": "^8.0.14"
 	},
-	"overrides": {
-		"vite": "^8.0.14"
+	"pnpm": {
+		"overrides": {
+			"vite": "^8.0.14"
+		},
+		"onlyBuiltDependencies": [
+			"@tailwindcss/oxide",
+			"esbuild"
+		]
 	}
 }

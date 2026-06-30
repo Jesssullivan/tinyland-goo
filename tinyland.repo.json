@@ -14,7 +14,7 @@
 	"contracts": {
 		"agent_contract": "AGENTS.md",
 		"just": "Justfile",
-		"nix": "none",
+		"nix": "flake.nix",
 		"github_actions": ".github/workflows",
 		"secrets_scan": "gitleaks",
 		"conformance": "just conformance"

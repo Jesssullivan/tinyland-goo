@@ -30,10 +30,12 @@ jobs:
       - name: Secrets scan (working tree)
         run: gitleaks dir --config .gitleaks.toml --redact --verbose .
 
-      - run: npm install
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+      - run: pnpm install --frozen-lockfile
       - name: Conformance (static-spoke subset)
         run: bash scripts/check-conformance.sh
       - name: Type check
-        run: npm run check
+        run: pnpm run check
       - name: Build (project base path)
-        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" npm run build
+        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" pnpm run build
