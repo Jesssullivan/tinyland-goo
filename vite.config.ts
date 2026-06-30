@@ -26,5 +26,12 @@ function skeletonTailwindV4Compat(): Plugin {
 }
 
 export default defineConfig({
-	plugins: [skeletonTailwindV4Compat(), tailwindcss(), sveltekit()]
+	plugins: [skeletonTailwindV4Compat(), tailwindcss(), sveltekit()],
+	// Web-perf backfeed (TIN-2224). lightningcss ships under vite 8's hard deps,
+	// so this adds 0 package.json deps and preserves the 0-prod-dep invariant.
+	build: {
+		cssMinify: 'lightningcss',
+		reportCompressedSize: true,
+		chunkSizeWarningLimit: 250
+	}
 });

@@ -1,7 +1,8 @@
 # tinyland-goo — UV-reactive bed glue project site (static SvelteKit SPA)
 # Single authoritative entrypoint. Quick start: just setup && just dev
-# Drawn from tinyland-inc/site.scaffold. pnpm + a local Nix devshell (`nix
-# develop`); the GitHub Pages publish job stays on pinned Node (no Nix on deploy).
+# Drawn from tinyland-inc/site.scaffold. pnpm inside a Nix devshell (`nix
+# develop`); CI and the GitHub Pages publish job run `nix develop --command just
+# <recipe>` — CI == local == deploy (the house default deploy lane).
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 root := justfile_directory()

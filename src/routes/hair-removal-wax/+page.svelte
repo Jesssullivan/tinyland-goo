@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import SEOHead from '$lib/components/SEOHead.svelte';
 	import DepilatoryHardWaxScaler from '$lib/components/DepilatoryHardWaxScaler.svelte';
 	import DepilatoryStripWaxScaler from '$lib/components/DepilatoryStripWaxScaler.svelte';
 
@@ -194,9 +195,18 @@
 	];
 </script>
 
-<svelte:head>
-	<title>tinyland-goo — hair removal wax formulation research</title>
-</svelte:head>
+<SEOHead
+	title="tinyland-goo — hair removal wax formulation research"
+	description="Hair-removal wax formulation research: hard (stripless) and soft (strip) depilatory wax recipes, rosin / beeswax / oil ratios, working-temperature notes, and interactive batch scalers."
+	ogType="article"
+	jsonLd={{
+		'@context': 'https://schema.org',
+		'@type': 'TechArticle',
+		headline: 'Hair-removal wax formulation research',
+		description:
+			'Hard (stripless) and soft (strip) depilatory wax recipes, rosin/beeswax/oil ratios, and working-temperature notes.'
+	}}
+/>
 
 <main class="prose-body mx-auto max-w-3xl px-6 py-12 md:py-16">
 	<p class="text-xs uppercase tracking-widest text-surface-500">Tinyland · wax lab</p>

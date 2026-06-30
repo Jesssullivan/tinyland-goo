@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import SEOHead from '$lib/components/SEOHead.svelte';
 	import ChainWaxEmulsionScaler from '$lib/components/ChainWaxEmulsionScaler.svelte';
 	import ChainWaxHotMeltScaler from '$lib/components/ChainWaxHotMeltScaler.svelte';
 
@@ -248,9 +249,18 @@
 	];
 </script>
 
-<svelte:head>
-	<title>tinyland-goo — chain wax additive + ultrasonic emulsion research</title>
-</svelte:head>
+<SEOHead
+	title="tinyland-goo — chain wax additive + ultrasonic emulsion research"
+	description="PFAS-free bike chain wax research: a paraffin hot-melt + ultrasonic emulsion recipe, a WS2 + hBN solid-lubricant down-select, interactive batch scalers, and primary-source tribology notes."
+	ogType="article"
+	jsonLd={{
+		'@context': 'https://schema.org',
+		'@type': 'TechArticle',
+		headline: 'PFAS-free bike chain wax: WS2 + hBN additive down-select',
+		description:
+			'Paraffin hot-melt and ultrasonic-emulsion chain-wax recipes with a WS2 + hBN solid-lubricant down-select and primary-source tribology notes.'
+	}}
+/>
 
 <main class="prose-body mx-auto max-w-3xl px-6 py-12 md:py-16">
 	<p class="text-xs uppercase tracking-widest text-surface-500">Tinyland · wax lab</p>

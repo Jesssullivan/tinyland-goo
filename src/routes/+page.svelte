@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import SEOHead from '$lib/components/SEOHead.svelte';
 	import GlueScaler from '$lib/components/GlueScaler.svelte';
 	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
 
@@ -77,9 +78,17 @@
 	];
 </script>
 
-<svelte:head>
-	<title>tinyland-goo — UV-reactive bed glue + a Klipper coverage gate</title>
-</svelte:head>
+<SEOHead
+	title="tinyland-goo — UV-reactive bed glue + a Klipper coverage gate"
+	description="UV-reactive, strontium-aluminate-infused 3D-printer bed glue: a stronger-than-Frank recipe, a weight-based batch scaler, an off-the-shelf UV coverage-sensing BOM, and a Klipper pre-print gate."
+	jsonLd={{
+		'@context': 'https://schema.org',
+		'@type': 'TechArticle',
+		headline: 'UV-reactive 3D-printer bed glue + a Klipper coverage gate',
+		description:
+			'A strontium-aluminate UV-reactive bed-glue recipe, a weight-based batch scaler, a UV coverage-sensing BOM, and a Klipper pre-print gate.'
+	}}
+/>
 
 <main class="prose-body mx-auto max-w-3xl px-6 py-12 md:py-16">
 	<p class="text-xs uppercase tracking-widest text-surface-500">Tinyland · maker log</p>

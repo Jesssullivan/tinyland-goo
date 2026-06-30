@@ -1,5 +1,13 @@
 name: CI
 
+# Self-contained CI for the personal tinyland-goo spoke, run through the Nix
+# devshell + `just` so CI == local == deploy. The scaffold default delegates to
+# the org's reusable spoke-ci.yml (org runner classes) that a personal repo
+# can't `uses:`; we wire the equivalent gates ourselves. Cache-read attach is
+# available via the jesssullivan-infra overlay + the gf-reapi OIDC token
+# exchange (no re-home), but is left dormant: Bazel is toolchain-only here and
+# never builds the site, so the realized cache win is ~nil.
+
 on:
   push:
     branches: [main]
@@ -11,86 +19,77 @@ permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Deploy-critical mirror: FAST Node + corepack pnpm (NO Nix on this path,
-  # matching the GitHub Pages publish job). secrets + public-safe leak scan +
-  # conformance + typecheck + Flywheel enrollment contract + static build.
-  validate:
+  check-build:
+    name: check + static build (Nix devshell)
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v6
+      - uses: cachix/install-nix-action@v31
         with:
-          node-version-file: '.nvmrc'
+          extra_nix_config: |
+            experimental-features = nix-command flakes
 
-      - name: Install gitleaks
-        run: |
-          GL=8.21.2
-          curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v${GL}/gitleaks_${GL}_linux_x64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin gitleaks
-      - name: Secrets scan (working tree)
-        run: gitleaks dir --config .gitleaks.toml --redact --verbose .
+      - name: Install workspace dependencies
+        run: nix develop --command just setup
+      - name: Secrets scan (gitleaks, from the devshell)
+        run: nix develop --command just secrets-scan-dir
       - name: Internal-endpoint leak scan (public-safe)
-        run: bash scripts/scan-internal-endpoints.sh
-
-      - name: Enable corepack (pnpm)
-        run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - name: Conformance (static-spoke subset)
-        run: bash scripts/check-conformance.sh
-      - name: Type check
-        run: pnpm run check
-      - name: Unit tests (vitest)
-        run: pnpm run test:unit
-      - name: Flywheel enrollment contract
-        run: bash scripts/flywheel-enrollment-contract-test.sh
+        run: nix develop --command just scan-endpoints
+      - name: Conformance (16-item scaffold checklist)
+        run: nix develop --command just conformance
+      - name: Check (svelte-check + vitest + Flywheel contract)
+        run: nix develop --command just check
       - name: Build (project base path)
-        run: BASE_PATH="/${GITHUB_REPOSITORY#*/}" pnpm run build
+        run: nix develop --command just build
+        env:
+          BASE_PATH: /tinyland-goo
 
-  # Toolchain module-graph integrity proof. GATED/OPTIONAL: runs on push to main
-  # + manual dispatch, NOT on every PR (Bazel is not the canonical build — the
-  # site builds via pnpm). Proves the dependency graph resolves against the
-  # sha-pinned registry and that MODULE.bazel.lock has not drifted.
   bazel-graph:
-    if: github.event_name != 'pull_request'
+    name: Bazel module-graph integrity
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: cachix/install-nix-action@v31
         with:
-          node-version-file: '.nvmrc'
-      - name: Install bazelisk
-        run: npm install -g @bazel/bazelisk
-      - name: Module graph resolves (sha-pinned registry)
-        run: bazelisk mod graph
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      # Toolchain-only module-graph proof; the site build stays `pnpm run build`.
+      - name: bazelisk mod graph
+        run: nix develop --command bazelisk mod graph
       - name: MODULE.bazel.lock has not drifted
-        run: bazelisk mod graph --lockfile_mode=error >/dev/null
+        run: nix develop --command bazelisk mod graph --lockfile_mode=error
 
-  # GloriousFlywheel remote cache accelerator. DORMANT: skips-green unless the
-  # operator sets repo/org variable FLYWHEEL_ENABLED=true and supplies a
-  # reachable BAZEL_REMOTE_CACHE (only meaningful after re-homing under
-  # tinyland-inc). The endpoint stays env authority; nothing is baked here.
+  # GloriousFlywheel cache-first build/test. DORMANT: gated on FLYWHEEL_ENABLED.
+  # runs-on tinyland-nix — the cache/RBE data plane is cluster-internal (gRPC,
+  # reachable only inside the cluster), so a GitHub-hosted runner can mint a
+  # token but cannot reach it; the in-cluster ARC lane is where a cache hit lands.
+  # Cache-only here (executor-backed is refused off-cluster). Inert until enabled.
   flywheel:
-    if: vars.FLYWHEEL_ENABLED == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    name: Flywheel cache-first build + test
+    runs-on: tinyland-nix
+    timeout-minutes: 30
+    if: ${{ vars.FLYWHEEL_ENABLED == 'true' }}
+    env:
+      BAZEL_REMOTE_CACHE: ${{ secrets.BAZEL_REMOTE_CACHE }}
+      GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
+      GF_BAZEL_REMOTE_UPLOAD: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: cachix/install-nix-action@v31
         with:
-          node-version-file: '.nvmrc'
-      - name: Install bazelisk
-        run: npm install -g @bazel/bazelisk
-      - name: Flywheel cache attachment (dormant until re-home)
-        env:
-          BAZEL_REMOTE_CACHE: ${{ vars.BAZEL_REMOTE_CACHE }}
-          GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
-          GF_BAZEL_RUNNER_LABELS: tinyland-nix
-        run: bash scripts/flywheel-doctor.sh
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Flywheel doctor
+        run: nix develop --command just flywheel-doctor
+      - name: Flywheel cache attachment
+        run: nix develop --command just flywheel-info
+      - name: Flywheel cache-first remote check
+        run: nix develop --command just flywheel-check

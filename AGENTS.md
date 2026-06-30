@@ -7,7 +7,9 @@ spawn 2026-06-06), **scaffold tag `v0.1.0`** (`tinyland.repo.json`
 scaffold posture** — pnpm + Nix + toolchain-only Bazel + an endpoint-free
 GloriousFlywheel binding + public-safe `tofu/`/lanes — with the org-only
 surfaces carried **wired-but-dormant** (see *Personal posture*). The canonical
-build + GitHub Pages deploy are unchanged.
+build (`pnpm run build`) + GitHub Pages deploy target are unchanged; the publish
+job runs it through the **Nix devshell** (`nix develop --command just build`) —
+CI == local == deploy, the house default deploy lane (TIN-2230).
 
 ## Repo Role
 
@@ -24,11 +26,12 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
 - **DX/AX**: `Justfile` is the single source of truth. Invoke through
   `just <recipe>`; do not call `npm` / `vite` directly outside the Justfile
   unless adding a recipe.
-- **Toolchain**: **pnpm** (pinned via `packageManager` in `package.json`) + a
-  Nix `flake.nix`/`direnv` devshell for **local** dev (`nix develop`). `.nvmrc`
-  (Node 22) is retained for the Pages publish job. The GitHub Pages deploy and CI
-  build run on **pinned Node + corepack pnpm** — Nix is local-dev-only and never
-  on the publish path (see Deploy + Declined surfaces).
+- **Toolchain**: **pnpm** (pinned via `packageManager` in `package.json`) inside
+  a Nix `flake.nix`/`direnv` devshell (`nix develop`). The devshell backs local
+  dev, **CI, and the Pages publish job** alike — every CI + deploy step runs
+  `nix develop --command just <recipe>`, so **CI == local == deploy** (the house
+  default; `cachix/install-nix-action@v31` on the runners). `.nvmrc` is a local
+  convenience only; the publish path no longer pins Node directly.
 - **Build**: `just build` runs `pnpm run build` (SvelteKit **adapter-static**)
   and emits a fully static, prerendered site in `build/`. `BASE_PATH` sets the
   GitHub Pages project base (`/tinyland-goo`); `just build-local` builds at root.
@@ -42,17 +45,24 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
   rules miss — the gate that keeps the private blahaj / tool-bus topology out of
   this public repo. Run it before copying any org-only scaffold fragment.
 
-## Deploy — GitHub Pages (intentional divergence)
+## Deploy — GitHub Pages, the house default deploy lane
 
 This spoke deploys to **GitHub Pages** under the personal `Jesssullivan`
 account (`jesssullivan.github.io/tinyland-goo`), via
-`.github/workflows/deploy-pages.yml` (`actions/deploy-pages` on `build/`).
+`.github/workflows/deploy-pages.yml` (`actions/deploy-pages` on `build/`). The
+build job runs **through the Nix devshell** (`cachix/install-nix-action@v31` +
+`nix develop --command just build`) on a GitHub-hosted runner — this is the
+canonical **House DEFAULT deploy lane** (TIN-2230 Option A), the same Nix path
+the canonical `site.scaffold` and the live cousin `formal_transfemme_sewing`
+use. (An earlier revision wrongly built on pinned Node + corepack pnpm; that was
+a self-inflicted divergence, not a sanctioned exception — the only pinned-Node
+precedent, `jesssullivan.github.io`, is legacy non-scaffold lineage.)
 
-Note: other Tinyland spokes (darkmap, software.tinyland.dev, tummycrypt.dev-site)
-deploy to **Vercel** or a container/K8s target. GitHub Pages is a deliberate
-choice for this leaf project page — it needs no runtime, no edge, and no vendor
-credentials. There is no `static/CNAME` (the Pages route is the canonical URL)
-and `static/.nojekyll` is required so `_app/` assets are served.
+Other Tinyland spokes (darkmap, software.tinyland.dev) deploy to **Vercel** or a
+container/K8s target; adapter-static → GitHub Pages is the house default for a
+static leaf — no runtime, no edge, no vendor credentials. There is no
+`static/CNAME` (the Pages route is the canonical URL) and `static/.nojekyll` is
+required so `_app/` assets are served.
 
 ## Theme & Skeleton
 
@@ -74,11 +84,14 @@ overturned** on house bazel-first / remote-everything fluency grounds:
   Bazel does **not** build the site — the canonical build stays `pnpm run build`
   (adapter-static), never on the deploy critical path. A toolchain-only
   `MODULE.bazel` (no `@tummycrypt/*` deps; 0 production deps) with the registry
-  pinned to an **immutable** `tinyland-inc/bazel-registry` commit sha (not
-  `main/`, per TIN-2235) is exercised via `just bazel-graph` as a gated proof.
-- **Nix flake + direnv — local dev + non-deploy CI only.** Cross-spoke toolchain
-  homogeneity + `CI == local` on low-power machines is now the stated goal. Nix
-  is **never** on the GitHub Pages publish path (pinned Node + corepack pnpm).
+  chain on `tinyland-inc/bazel-registry/**main**` (matching the fleet — the
+  canonical scaffold, the hub, and the cousin all track main) is exercised via
+  `just bazel-graph` as a gated proof. (TIN-2235 is an *upstream* append-only
+  registry guard + lock re-cut, **not** a consumer-side sha-pin — an earlier
+  revision miscited it to pin a sha and was the lone fleet outlier.)
+- **Nix flake + direnv — local dev, CI, AND the Pages publish path.** Cross-spoke
+  toolchain homogeneity + `CI == local == deploy` is the stated goal, so every CI
+  and deploy step runs `nix develop --command just <recipe>` (the house default).
 - **GloriousFlywheel binding + `tofu/` + `.github/lanes.json` — wired-but-DORMANT.**
   Carried for house parity + a one-flip activation path; see *Personal posture*
   below for exactly how dormancy is encoded (no secrets, no live endpoints).
@@ -94,27 +107,40 @@ This is a **public personal-account** spoke, so org-only surfaces are carried
 **wired-but-dormant** — real house parity + a one-flip activation path, with no
 secrets and no live endpoints:
 
-- **GloriousFlywheel RBE/cache binding.** `.bazelrc.flywheel` (endpoint-free) +
-  `scripts/gloriousflywheel-bazel.sh` (the **only** endpoint authority) + the
-  `just flywheel-*` recipes are present but inert. `enrollment.substrateMode` is
-  `compatibility-local-only` (no reachable org `BAZEL_REMOTE_CACHE`), so
-  `just flywheel-doctor` fail-fasts honestly and the `flywheel-*` recipes do no
-  work off-cluster. The live remote-build / cache-first speed win is
-  **contingent on re-homing under `tinyland-inc`**, not a property of this repo.
-  `just cache-contract-strict` is **opt-in** and deliberately NOT in `just check`
-  (it would assert an unattained cache). Never write raw `--remote_cache=` /
-  `--remote_executor=` endpoints anywhere — the wrapper contract is endpoint-free
-  (conformance item 7 + `just scan-endpoints` enforce this).
-- **Self-contained CI (no `ci-templates` reusable workflows).** A personal repo
-  cannot reach the org `tinyland-inc/ci-templates@vX` reusable workflows, so
-  `.github/workflows/ci.yml` runs a self-equivalent **Node + pnpm** gate
-  (secrets + internal-endpoint scan + conformance + typecheck + Flywheel contract
-  + build), with the `bazel-graph` job gated to non-PR events and the `flywheel`
-  job gated on `vars.FLYWHEEL_ENABLED`. This is documented **MANUAL drift** from
-  conformance item 2 (ci-templates SemVer pin); the re-home path is
-  `tinyland-inc/ci-templates@v2.8.0`, referenced but deliberately not wired. The
-  Pages **deploy** stays on pinned Node + corepack pnpm — no Nix on the publish
-  path.
+- **GloriousFlywheel RBE/cache binding — dormant by economics, NOT by re-home.**
+  `.bazelrc.flywheel` (endpoint-free) + `scripts/gloriousflywheel-bazel.sh` (the
+  **only** endpoint authority) + the `just flywheel-*` recipes are present but
+  inert; `enrollment.substrateMode = compatibility-local-only`, so
+  `just flywheel-doctor` fail-fasts honestly. **Attach does NOT require
+  re-homing** under `tinyland-inc`: a personal Jesssullivan repo enrolls as a
+  first-class GloriousFlywheel consumer via the **`jesssullivan-infra` operator
+  overlay** (an ARC `extra_runner_sets` anchor in the personal account + a
+  one-PR consumer-registry line in the `tinyland-inc/GloriousFlywheel` org repo
+  that *records* the repo, does not move it) plus a **GitHub-OIDC →
+  gf-reapi token exchange** (TIN-2219). NB: that overlay is **ARC / OpenTofu /
+  IAM**, *not* a "bzlmod overlay" — never add a `jesssullivan` or
+  `@gloriousflywheel` Bazel registry or `bazel_dep` (no such module exists; the
+  framing was retired by ADR `2026-06-consumer-latch.md` and it breaks config
+  load). It stays dormant here for two honest reasons: (a) the cache/RBE **data
+  plane** is **cluster-internal** (a gRPC service reachable only inside the
+  cluster network), so a hosted runner mints a token but cannot reach it —
+  a real cache hit needs CI on the in-cluster `tinyland-nix` ARC lane; and (b)
+  Bazel is toolchain-only and never builds the site (`pnpm run build` does), so
+  the realized build win is **~nil**. The post-enrollment baseline is
+  `shared-cache-backed` (executor-backed is GF-dogfood-first). `just
+  cache-contract-strict` is **opt-in** (not in `just check`). Never write raw
+  `--remote_cache=` / `--remote_executor=` endpoints — the wrapper contract is
+  endpoint-free (conformance item 7 + `just scan-endpoints` enforce this).
+- **CI runs through the Nix devshell (CI == local == deploy).**
+  `.github/workflows/ci.yml` runs every gate via `nix develop --command just
+  <recipe>` (secrets + internal-endpoint scan + conformance + check + build),
+  with a `bazel-graph` job (Nix) and a `flywheel` job that is gated on
+  `vars.FLYWHEEL_ENABLED` and `runs-on: tinyland-nix` (the in-cluster ARC lane
+  where the cache is reachable). The org `tinyland-inc/ci-templates@vX` reusable
+  workflows are not consumed (a personal repo's `uses:` reach is a separate
+  GitHub-permissions question from cache-attach, which the OIDC exchange
+  dissolves); this is documented **MANUAL drift** from conformance item 2. The
+  Pages **deploy** also runs through the Nix devshell — no pinned-Node divergence.
 - **`tofu/` (declare-only spoke composition) + `.github/lanes.json`.** A thin
   public-safe `tofu/` composes the GloriousFlywheel `spoke-*` modules through a
   `gf_modules_source` variable (placeholder default; the concrete private path is
