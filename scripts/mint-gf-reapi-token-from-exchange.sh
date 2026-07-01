@@ -9,7 +9,11 @@
 
 set -euo pipefail
 
-exchange_url="${GF_REAPI_TOKEN_EXCHANGE_URL:-https://gf-reapi-token-exchange.glorious.build/v1/token/exchange}"
+# Default = the LIVE public front door (activated 2026-07-01, TIN-2219; route
+# contract: blahaj tofu/intent/gloriousflywheel/public-token-exchange-route.json).
+# The prior gf-reapi-token-exchange.glorious.build default was the TIN-2219 SPEC
+# hostname that never shipped — glorious.build stayed issuer-label-only.
+exchange_url="${GF_REAPI_TOKEN_EXCHANGE_URL:-https://gf-token-exchange.tinyland.dev/v1/token/exchange}"
 audience="${GF_REAPI_TOKEN_EXCHANGE_AUDIENCE:-gloriousflywheel-token-exchange}"
 request_mode="${GF_REAPI_TOKEN_EXCHANGE_REQUEST:-executor}"
 ttl="${GF_REAPI_TOKEN_EXCHANGE_TTL:-45m}"
