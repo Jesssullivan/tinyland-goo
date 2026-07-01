@@ -1,0 +1,61 @@
+name: Public mint probe
+
+# Off-cluster reachability + mint probe against the LIVE GloriousFlywheel
+# public token-exchange front door (TIN-2219, activated 2026-07-01).
+#
+# GUARDRAIL LABEL (per TIN-2219): this runs on a GitHub-HOSTED runner and is an
+# OFF-CLUSTER REACHABILITY/MINT PROBE ONLY — it is NOT product evidence for
+# cache/executor adoption. Product evidence comes from the in-cluster ARC lanes
+# (flywheel-cache / flywheel-executor in ci.yml) and the GF proof harness.
+#
+# What it proves: a real GitHub Actions OIDC caller with ZERO tinyland
+# credentials, outside the cluster and tailnet, can mint a scoped gf-reapi-cell
+# credential from https://gf-token-exchange.tinyland.dev — the TIN-2219
+# verification-contract positive, under this repo's own identity.
+
+on:
+  workflow_dispatch:
+    inputs:
+      request:
+        description: "Token request mode"
+        type: choice
+        default: cache-read
+        options:
+          - cache-read
+          - executor
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  mint:
+    name: Mint via public front door (off-cluster probe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Mint gf-reapi-cell token through the public exchange
+        env:
+          GF_REAPI_TOKEN_EXCHANGE_URL: ${{ vars.GF_REAPI_TOKEN_EXCHANGE_URL }}
+          GF_REAPI_TOKEN_EXCHANGE_REQUEST: ${{ inputs.request }}
+          GF_REAPI_TOKEN_EXCHANGE_TTL: 15m
+        run: bash scripts/mint-gf-reapi-token-from-exchange.sh
+      - name: Report probe result (no token material)
+        run: |
+          set -euo pipefail
+          token_file="${RUNNER_TEMP}/gf-reapi-cell-token.jwt"
+          if [ ! -s "${token_file}" ]; then
+            echo "::error::mint probe produced no token file"
+            exit 1
+          fi
+          # Structural check only — never print the token.
+          seg_count="$(tr -dc '.' < "${token_file}" | wc -c | tr -d ' ')"
+          {
+            echo "## Public mint probe"
+            echo "- endpoint: ${{ vars.GF_REAPI_TOKEN_EXCHANGE_URL || 'script default (public front door)' }}"
+            echo "- request mode: ${{ inputs.request }}"
+            echo "- token: present, JWT-shaped (${seg_count} dot separators)"
+            echo "- instance: ${BAZEL_REMOTE_INSTANCE_NAME:-<not exported>}"
+            echo "- NOTE: off-cluster reachability/mint probe only — NOT product evidence."
+          } >> "$GITHUB_STEP_SUMMARY"

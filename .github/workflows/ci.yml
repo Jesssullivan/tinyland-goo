@@ -80,6 +80,10 @@ jobs:
     env:
       GF_BAZEL_SUBSTRATE_MODE: shared-cache-backed
       GF_BAZEL_REMOTE_UPLOAD: 'false'
+      # flywheel-doctor fails closed when the fleet profile state is unset and
+      # the ARC runner env does not inject it — same one-liner as GF's own
+      # fresh-repo-enrollment-proof.yml. A mode string, not an endpoint.
+      GF_FLYWHEEL_PROFILE_STATE: shared-cache-backed
     steps:
       - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v31
@@ -133,6 +137,9 @@ jobs:
       - name: Mint GloriousFlywheel REAPI token
         env:
           GF_REAPI_TOKEN_EXCHANGE_TTL: 45m
+          # Endpoint stays env authority: an unset repo variable falls through
+          # to the script's public-front-door default.
+          GF_REAPI_TOKEN_EXCHANGE_URL: ${{ vars.GF_REAPI_TOKEN_EXCHANGE_URL }}
         run: nix develop --command bash scripts/mint-gf-reapi-token-from-exchange.sh
       - name: Validate executor-backed attachment
         run: nix develop --command bash scripts/cache-attachment-contract.sh --strict
