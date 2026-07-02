@@ -4,8 +4,9 @@
 // `vite build`, and assert the prerendered routes exist. Adapted (simplified —
 // no workspace packages) from the live jesssullivan.github.io build smoke.
 
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -22,8 +23,10 @@ process.env.NODE_ENV = 'production';
 
 copyInputsToBuildRoot();
 linkNodeModules();
+makeTreeWritable(buildRoot);
 
 const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'utf8'));
+const requireFromBuildRoot = createRequire(join(buildRoot, 'package.json'));
 
 run('svelte-kit', ['sync']);
 run('vite', ['build']);
@@ -98,10 +101,48 @@ function linkNodeModules() {
 	}
 }
 
+function makeTreeWritable(targetPath) {
+	if (!existsSync(targetPath)) {
+		return;
+	}
+
+	const stat = lstatSync(targetPath);
+	chmodSync(targetPath, stat.mode | (stat.isDirectory() ? 0o700 : 0o600));
+	if (stat.isDirectory()) {
+		for (const child of readdirSync(targetPath)) {
+			makeTreeWritable(resolve(targetPath, child));
+		}
+	}
+}
+
 function run(cmd, args) {
-	const bin = resolve(buildRoot, 'node_modules', '.bin', cmd);
-	const result = spawnSync(bin, args, { cwd: buildRoot, stdio: 'inherit', env: process.env });
+	const bin = resolveToolBin(cmd);
+	const result = spawnSync(process.execPath, [bin, ...args], { cwd: buildRoot, stdio: 'inherit', env: process.env });
+	if (result.error) {
+		throw result.error;
+	}
 	if (result.status !== 0) {
 		throw new Error(`${cmd} ${args.join(' ')} failed (exit ${result.status ?? result.signal})`);
 	}
+}
+
+function resolveToolBin(cmd) {
+	switch (cmd) {
+		case 'svelte-kit':
+			return resolvePackageBin('@sveltejs/kit', 'svelte-kit');
+		case 'vite':
+			return resolvePackageBin('vite', 'vite');
+		default:
+			throw new Error(`Unsupported build-smoke tool: ${cmd}`);
+	}
+}
+
+function resolvePackageBin(packageName, binName) {
+	const manifestPath = requireFromBuildRoot.resolve(`${packageName}/package.json`);
+	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+	const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.[binName];
+	if (!bin) {
+		throw new Error(`Package ${packageName} does not expose bin ${binName}`);
+	}
+	return resolve(dirname(manifestPath), bin);
 }
