@@ -14,6 +14,12 @@ vite.config.ts.timestamp-*
 # SBOM artifacts (just sbom)
 /build/sbom/
 
+# Web-perf artifacts (TIN-2224): generated image variants, bundle treemap,
+# and the generated image manifest. Regenerate via `just optimize-images`.
+static/optimized/
+.bundle-stats/
+src/lib/image-manifest.json
+
 # Local operator endpoint/credential escape-hatches — NEVER commit live values.
 # gitleaks only catches token shapes, not raw internal hostnames; keep these out.
 user.bazelrc
