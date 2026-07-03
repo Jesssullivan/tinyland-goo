@@ -64,6 +64,12 @@ optimize-images:
 conformance:
     cd {{ root }} && bash scripts/check-conformance.sh
 
+# Substrate-boundary conformance: blahaj code-reach must be a named,
+# provenance-carrying interface (config/substrate-boundary-allowlist.json),
+# not an ad-hoc bleed (TIN-2423 / ledger item 30).
+substrate-boundary-check:
+    cd {{ root }} && python3 scripts/validate-substrate-boundary.py
+
 # Validate tinyland.repo.json against the vendored schema (needs jsonschema; nix develop)
 repo-manifest-validate:
     cd {{ root }} && python3 scripts/validate-lanes.py --schema docs/schemas/tinyland-repo-manifest.schema.json --instance tinyland.repo.json
