@@ -46,6 +46,16 @@ build-local:
 preview: build-local
     cd {{ root }} && pnpm run preview
 
+# Build with bundle analyzer (emits .bundle-stats/stats.html treemap)
+analyze:
+    cd {{ root }} && ANALYZE=1 pnpm run build
+
+# Optimize static images: sharp -> webp/avif responsive widths, svgo -> SVG,
+# plus a manifest at src/lib/image-manifest.json. Artifacts land in
+# static/optimized/ (gitignored). See scripts/optimize-images.js (TIN-2224).
+optimize-images:
+    cd {{ root }} && node scripts/optimize-images.js
+
 # ─────────────────────────────────────────────
 # Conformance & security (site.scaffold static-spoke subset)
 # ─────────────────────────────────────────────
@@ -182,6 +192,79 @@ flywheel-executor-check *targets="//:ci_validation_suite":
       GF_BAZEL_SUBSTRATE_MODE=executor-backed \
       GF_BAZEL_REMOTE_UPLOAD=false \
       bash scripts/gloriousflywheel-bazel.sh test --config=flywheel-executor {{ targets }}
+
+# Executor canary — OPT-IN, CLUSTER-ONLY (TIN-2226). Forces a REAL remote
+# execution on --config=flywheel-executor and FAILS-CLOSED unless it can prove
+# nonzero remotely-executed processes plus a CAS/cache round-trip. It REFUSES on
+# ubuntu-latest and any hosted / bare-self-hosted / non-cluster runner because
+# cache hits are NOT executor proof. Off-cluster (no BAZEL_REMOTE_EXECUTOR or no
+# tinyland cluster runner-class label) it refuses up front — it never silently
+# "passes". Requires real executor enrollment: BAZEL_REMOTE_EXECUTOR + matching
+# BAZEL_REMOTE_CACHE + a tinyland capability-class label in GF_BAZEL_RUNNER_LABELS.
+#
+# Opt-in, cluster-only executor canary; fails-closed off-cluster / on ubuntu-latest.
+flywheel-runner-selftest target="//:svelte_check_test":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd {{ root }}
+
+    refuse()     { echo "flywheel-runner-selftest: REFUSE — $1" >&2; exit 3; }
+    fail_proof() { echo "flywheel-runner-selftest: FAIL — $1"   >&2; exit 4; }
+
+    # 1. Hosted-runner guard. The canary must never pass on ubuntu-latest.
+    if [[ "${RUNNER_ENVIRONMENT:-}" == "github-hosted" ]]; then
+      refuse "running on a GitHub-hosted runner (RUNNER_ENVIRONMENT=github-hosted); executor proof is impossible here."
+    fi
+    labels="${GF_BAZEL_RUNNER_LABELS:-}"
+    is_cluster=0
+    for l in ${labels//,/ }; do
+      case "$l" in
+        tinyland-nix|tinyland-nix-heavy|tinyland-nix-kvm|tinyland-nix-gpu|tinyland-docker|tinyland-dind)
+          is_cluster=1 ;;
+        ubuntu-*|ubuntu|windows-*|windows|macos-*|macos)
+          refuse "hosted runner label '$l' (e.g. ubuntu-latest). Cache hits are not executor proof." ;;
+        self-hosted)
+          refuse "bare 'self-hosted' label carries no cluster capability class." ;;
+      esac
+    done
+    if [[ "$is_cluster" -ne 1 ]]; then
+      refuse "no tinyland cluster capability-class label in GF_BAZEL_RUNNER_LABELS='${labels:-<unset>}' (need tinyland-nix[-heavy|-kvm|-gpu] / tinyland-docker / tinyland-dind)."
+    fi
+
+    # 2. Executor enrollment guard — fail-closed off-cluster.
+    [[ -n "${BAZEL_REMOTE_EXECUTOR:-}" ]] || refuse "BAZEL_REMOTE_EXECUTOR is unset; the executor self-test cannot run off-cluster."
+    export GF_BAZEL_SUBSTRATE_MODE=executor-backed
+    export GF_BAZEL_REMOTE_UPLOAD=false
+
+    # 3. Deep fail-closed gate: full executor contract (cluster runner class,
+    #    matching cache==executor, REAPI proof image digest). Read-only — runs
+    #    no Bazel actions; just asserts the substrate contract holds.
+    GF_BAZEL_SUBSTRATE_MODE=executor-backed bash scripts/cache-attachment-contract.sh --strict
+
+    # 4. Bounded declared-output canary: force a remote spawn and capture the
+    #    execution log as a declared artifact.
+    log="$(mktemp "${TMPDIR:-/tmp}/flywheel-runner-selftest.XXXXXX.json")"
+    trap 'rm -f "$log"' EXIT
+    bash scripts/gloriousflywheel-bazel.sh test --config=flywheel-executor \
+      --execution_log_json_file="$log" \
+      --remote_max_connections="${BAZEL_REMOTE_MAX_CONNECTIONS:-8}" \
+      "{{ target }}"
+
+    # 5. Proof: nonzero REMOTELY-executed processes + a CAS/cache round-trip.
+    #    A cache hit has runner "remote cache hit" and is excluded on purpose —
+    #    cache hits are NOT executor proof.
+    command -v jq >/dev/null 2>&1 || fail_proof "jq is required to verify the execution log."
+    remote_exec="$(jq -rs '[.[] | select(.runner == "remote")] | length' "$log" 2>/dev/null || echo 0)"
+    cache_get="$(jq -rs '[.[] | select(.remoteCacheHit == true)] | length' "$log" 2>/dev/null || echo 0)"
+    total="$(jq -rs 'length' "$log" 2>/dev/null || echo 0)"
+    echo "flywheel-runner-selftest: remote_exec=${remote_exec} cache_get=${cache_get} spawns=${total}"
+    if [[ "${total:-0}" -lt 1 ]]; then
+      fail_proof "empty execution log; no CAS/cache round-trip observed."
+    fi
+    if [[ "${remote_exec:-0}" -lt 1 ]]; then
+      fail_proof "0 remotely-executed processes (cache_get=${cache_get}). Cache hits are not executor proof."
+    fi
+    echo "flywheel-runner-selftest: PASS — ${remote_exec} remote-executed process(es), ${cache_get} cache GET hit(s)."
 
 # Populate external repos through the same cache/input-authority contract.
 flywheel-fetch target="//...":
