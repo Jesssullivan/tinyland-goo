@@ -1,0 +1,5 @@
+{
+  "$comment": "TIN-2423 / ledger item 30: named-interface allowlist for the substrate-boundary validator. Every entry carries provenance (TIN-2398 guardrail #2). A blahaj-reach hit under an allowlisted path_prefix is a NAMED INTERFACE, not a bleed.",
+  "schema_version": 1,
+  "allowed": []
+}
