@@ -25,8 +25,8 @@
 	},
 	"devDependencies": {
 		"@fontsource/inter": "^5.2.8",
-		"@skeletonlabs/skeleton": "4.15.2",
-		"@skeletonlabs/skeleton-svelte": "4.15.2",
+		"@skeletonlabs/skeleton": "5.0.1",
+		"@skeletonlabs/skeleton-svelte": "5.0.1",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.68.0",
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",

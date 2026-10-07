@@ -66,9 +66,13 @@ required so `_app/` assets are served.
 
 ## Theme & Skeleton
 
-- **Skeleton 4.15.2** (pinned exact). Do not upgrade casually.
-- Tailwind v4 + the `skeletonTailwindV4Compat()` shim in `vite.config.ts`
-  rewrites `@variant` / `@apply variant-` to stable equivalents. Do not remove.
+- **Skeleton 5.0.1** (pinned exact, both `@skeletonlabs/skeleton` and
+  `@skeletonlabs/skeleton-svelte`; estate ruling RP1, TIN-5694). Do not
+  downgrade, range-pin, or take a prerelease.
+- Tailwind v4 with no compatibility shim. The Skeleton 4 era
+  `skeletonTailwindV4Compat()` transform is deleted and stays deleted: Skeleton 5
+  emits `@variant` on purpose. The theme's root background uses the Skeleton 5
+  names `--color-root-bg-light` / `--color-root-bg-dark`.
 - The omux house theme is vendored at `src/lib/styles/themes/omux.css`
   (from site.scaffold). Dark mode is the `data-mode` attribute set by the FOUC
   script in `src/app.html`.
@@ -168,7 +172,7 @@ secrets and no live endpoints:
 
 - Don't call `npm`/`vite` outside the Justfile (add a recipe instead).
 - Don't add runtime/server code, secrets, or vendor credentials — this is static.
-- Don't remove the Skeleton v4 compat shim or `static/.nojekyll`.
+- Don't restore the Skeleton 4 compat shim, and don't remove `static/.nojekyll`.
 - Don't introduce raw `--remote_cache=` / `--remote_executor=` endpoints
   anywhere — the GloriousFlywheel wrapper contract is endpoint-free (the only
   endpoint authority is `scripts/gloriousflywheel-bazel.sh`).

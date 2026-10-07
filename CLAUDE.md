@@ -11,8 +11,9 @@ Quick reminders:
   (`jesssullivan.github.io/tinyland-goo`). No runtime, no Nix, no Bazel — see
   `AGENTS.md` §Declined surfaces for the rationale (conforms to the
   site.scaffold static-spoke subset, intentionally thin).
-- Skeleton 4.15.2 pinned exact; Tailwind v4 with the `skeletonTailwindV4Compat()`
-  shim in `vite.config.ts`. Do not remove it or `static/.nojekyll`.
+- Skeleton 5.0.1 pinned exact (RP1, TIN-5694); Tailwind v4 with no compat
+  shim (the Skeleton 4 `skeletonTailwindV4Compat()` transform is deleted and
+  stays deleted). Do not remove `static/.nojekyll`.
 - `just check` (svelte-check), `just conformance` (static-spoke checklist),
   `just secrets-scan-dir` (gitleaks).
 - Repo: https://github.com/Jesssullivan/tinyland-goo

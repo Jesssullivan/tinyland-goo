@@ -7,8 +7,8 @@ updates:
     target-branch: 'main'
     open-pull-requests-limit: 10
     ignore:
-      # Skeleton 4.15.2 + Tailwind v4 are pinned exact and load-bearing (the
-      # skeletonTailwindV4Compat shim tracks them); upgrades need a ticketed proof.
+      # Skeleton 5.0.1 (estate ruling RP1, TIN-5694) + Tailwind v4 are pinned
+      # exact; moves are made by hand with a ticketed proof, not by Dependabot.
       - dependency-name: '@skeletonlabs/skeleton'
       - dependency-name: '@skeletonlabs/skeleton-svelte'
       - dependency-name: 'tailwindcss'

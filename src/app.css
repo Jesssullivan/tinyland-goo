@@ -14,6 +14,23 @@
 /* Dark mode via the data-mode attribute set synchronously in src/app.html. */
 @custom-variant dark (&:where([data-mode='dark'], [data-mode='dark'] *));
 
+/* Source fence. Tailwind emits a utility for every word-shaped token in every
+   file under the project root that .gitignore does not hide, and Skeleton
+   names its utilities after elements and everyday words (btn, card, chip,
+   checkbox, h1..h6, pre, textarea, and in 5.0.1 also dialog and disclosure
+   surfaces). Each `@source not` below takes a tree no page is templated from
+   out of the scan; paths are relative to this file. node_modules is
+   gitignored, so the Skeleton Svelte component classes are sourced
+   explicitly from the package dist (same fence as xoxd.ai 6d22bb9 and
+   floorcables.com SK3). */
+@source not '../scripts';
+@source not '../docs';
+@source not '../static';
+@source not '../klipper';
+@source not '../config';
+@source not '../tofu';
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
 html {
 	scroll-behavior: smooth;
 }
