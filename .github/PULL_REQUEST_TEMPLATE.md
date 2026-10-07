@@ -13,7 +13,7 @@
 - [ ] `just build` is green and the routes render
 - [ ] `just scan-endpoints` is clean (no internal cluster endpoints leaked)
 - [ ] No new gitleaks findings
-- [ ] Skeleton `4.15.2` exact pin preserved (no v5 / prerelease drift)
+- [ ] Skeleton `5.0.1` exact pin preserved (no prerelease drift)
 - [ ] If `tofu/` or the Flywheel binding changed: still public-safe + dormant
       (no real endpoints; `blahaj_installation_id` stays 0)
 
