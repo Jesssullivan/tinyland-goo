@@ -96,9 +96,13 @@ jobs:
         run: nix develop --command just flywheel-check
 
   # (B) GloriousFlywheel EXECUTOR-BACKED RBE lane (the proof tier). NON-REQUIRED:
-  # double-gated on the FLYWHEEL_EXECUTOR_ENABLED kill-switch AND same-repo only.
+  # double-gated on the FLYWHEEL_EXECUTOR_ENABLED kill-switch AND non-PR events.
   # The executor cell is scale-to-zero-between-proofs + render-time placeholders
   # today, so leave this OFF until ≥2 cold-start gf-reapi-cell proofs are green.
+  # Push and dispatch only: the GF token exchange refuses executor tokens to
+  # pull_request events ("executor requires trusted push provenance for
+  # refs/heads/main or an explicit workflow_dispatch/pull_request/schedule
+  # opt-in"), so a PR run can only fail here.
   # Endpoint-free: the require-executor step asserts the runner-injected cache +
   # executor env, then OIDC-mints a short-lived gf-reapi-cell token (public
   # exchange); the wrapper attaches them. Local machine stays a thin Bazel driver.
@@ -106,8 +110,7 @@ jobs:
     name: Flywheel executor-backed RBE (proof lane; non-required)
     if: >-
       vars.FLYWHEEL_EXECUTOR_ENABLED == 'true' &&
-      (github.event_name != 'pull_request' ||
-       github.event.pull_request.head.repo.full_name == github.repository)
+      github.event_name != 'pull_request'
     permissions:
       contents: read
       id-token: write
