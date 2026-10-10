@@ -1,6 +1,7 @@
 node_modules/
 /build/
 /.svelte-kit/
+/.svelte-check/
 .DS_Store
 .env
 .env.*
@@ -32,3 +33,4 @@ tofu/*.tfplan
 tofu/tfplan
 tofu/*.tfstate
 tofu/*.tfstate.*
+/bazel-*
