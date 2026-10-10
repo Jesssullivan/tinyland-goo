@@ -1,4 +1,6 @@
+import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin, type PluginOption } from 'vite';
 
@@ -35,7 +37,27 @@ if (analyzeRequested) {
 // heavyweights), so the site.scaffold rolldownOptions splitter would create
 // empty/no-op chunks. Revisit if a large client-side dependency lands.
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit(), ...analyzePlugins],
+	plugins: [
+		tailwindcss(),
+		// SvelteKit 3 reads its configuration from the sveltekit() plugin;
+		// svelte.config.js is no longer supported (RU1, Kit 3.0.1).
+		sveltekit({
+			preprocess: [vitePreprocess()],
+			compilerOptions: { runes: true },
+			adapter: adapter({
+				pages: 'build',
+				assets: 'build',
+				fallback: '404.html',
+				precompress: false,
+				strict: true
+			}),
+			// Project-page base path. On GitHub Pages at jesssullivan.github.io/tinyland-goo
+			// the deploy workflow sets BASE_PATH=/tinyland-goo; local dev stays at root.
+			paths: { base: (process.env.BASE_PATH ?? '') as '' | `/${string}` },
+			prerender: { handleHttpError: 'warn' }
+		}),
+		...analyzePlugins
+	],
 	// Web-perf backfeed (TIN-2224). lightningcss ships under vite 8's hard deps,
 	// so this adds 0 package.json deps and preserves the 0-prod-dep invariant.
 	build: {

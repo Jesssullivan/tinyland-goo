@@ -6,7 +6,7 @@
 	// brace-escaper. Everything is grams for a 0.01 g scale, with a g <-> oz
 	// toggle. `factor` multiplies the base-batch grams.
 
-	import { batchTotalGrams, formatAmount, gramsToOz, type Ingredient } from '$lib/scale';
+	import { batchTotalGrams, formatAmount, gramsToOz, type Ingredient } from '#lib/scale.js';
 
 	type Preset = { factor: number; label: string; recommended?: boolean };
 

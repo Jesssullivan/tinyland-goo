@@ -4,11 +4,12 @@
 // `vite build`, and assert the prerendered routes exist. Adapted (simplified —
 // no workspace packages) from the live jesssullivan.github.io build smoke.
 
-import { chmodSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { copyTreeDereferenced } from './prepare-sveltekit-types.mjs';
 
 const workspaceRoot = process.cwd();
 const runtimeRoot = mkdtempSync(join(tmpdir(), 'tinyland-goo-vite-build-'));
@@ -23,7 +24,6 @@ process.env.NODE_ENV = 'production';
 
 copyInputsToBuildRoot();
 linkNodeModules();
-makeTreeWritable(buildRoot);
 
 const packageJson = JSON.parse(readFileSync(join(buildRoot, 'package.json'), 'utf8'));
 const requireFromBuildRoot = createRequire(join(buildRoot, 'package.json'));
@@ -58,7 +58,6 @@ function copyInputsToBuildRoot() {
 		'package.json',
 		'pnpm-lock.yaml',
 		'pnpm-workspace.yaml',
-		'svelte.config.js',
 		'tsconfig.json',
 		'vite.config.ts',
 	]) {
@@ -71,13 +70,10 @@ function copyPath(source, destination) {
 		throw new Error(`Missing declared build input: ${source}`);
 	}
 	mkdirSync(dirname(destination), { recursive: true });
-	cpSync(source, destination, {
-		dereference: true,
-		errorOnExist: false,
-		force: true,
-		preserveTimestamps: false,
-		recursive: true,
-	});
+	// Node 22.22+ `cpSync(..., { dereference: true })` copies nested symlinks
+	// as symlinks, so later writes reach the read-only Bazel inputs (EROFS).
+	// copyTreeDereferenced (shared with site.scaffold) writes real files.
+	copyTreeDereferenced(source, destination);
 }
 
 function linkNodeModules() {
@@ -88,6 +84,9 @@ function linkNodeModules() {
 	}
 	mkdirSync(buildNodeModules, { recursive: true });
 	for (const entry of readdirSync(sourceNodeModules, { withFileTypes: true })) {
+		// SvelteKit 3 writes its generated tsconfig and `$app` types into
+		// node_modules/$app; `svelte-kit sync` below creates a writable copy.
+		if (entry.name === '$app') continue;
 		const sourcePath = resolve(sourceNodeModules, entry.name);
 		const destinationPath = resolve(buildNodeModules, entry.name);
 		if (entry.name.startsWith('@') && entry.isDirectory()) {
@@ -97,20 +96,6 @@ function linkNodeModules() {
 			}
 		} else {
 			symlinkSync(sourcePath, destinationPath, entry.isDirectory() ? 'dir' : 'file');
-		}
-	}
-}
-
-function makeTreeWritable(targetPath) {
-	if (!existsSync(targetPath)) {
-		return;
-	}
-
-	const stat = lstatSync(targetPath);
-	chmodSync(targetPath, stat.mode | (stat.isDirectory() ? 0o700 : 0o600));
-	if (stat.isDirectory()) {
-		for (const child of readdirSync(targetPath)) {
-			makeTreeWritable(resolve(targetPath, child));
 		}
 	}
 }

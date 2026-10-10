@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import SEOHead from '$lib/components/SEOHead.svelte';
-	import DepilatoryHardWaxScaler from '$lib/components/DepilatoryHardWaxScaler.svelte';
-	import DepilatoryStripWaxScaler from '$lib/components/DepilatoryStripWaxScaler.svelte';
+	import { resolve } from '$app/paths';
+	import SEOHead from '#lib/components/SEOHead.svelte';
+	import DepilatoryHardWaxScaler from '#lib/components/DepilatoryHardWaxScaler.svelte';
+	import DepilatoryStripWaxScaler from '#lib/components/DepilatoryStripWaxScaler.svelte';
 
 	const formulationKnobs = [
 		{
@@ -218,8 +218,8 @@
 		paraffin and microcrystalline waxes, low-temperature spread, peel force, residue, and skin-safety gates.
 	</p>
 	<p class="mt-4 text-sm">
-		<a class="underline" href={`${base}/`}>Back to UV bed glue</a> ·
-		<a class="underline" href={`${base}/chain-wax`}>Bike chain wax track</a>
+		<a class="underline" href={resolve('/')}>Back to UV bed glue</a> ·
+		<a class="underline" href={resolve('/chain-wax')}>Bike chain wax track</a>
 	</p>
 
 	<h2 class="mt-12 text-2xl font-semibold">The product physics</h2>
