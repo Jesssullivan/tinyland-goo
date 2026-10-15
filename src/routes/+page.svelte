@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import SEOHead from '$lib/components/SEOHead.svelte';
-	import GlueScaler from '$lib/components/GlueScaler.svelte';
-	import GlueScalerPinch from '$lib/components/GlueScalerPinch.svelte';
+	import { resolve } from '$app/paths';
+	import SEOHead from '#lib/components/SEOHead.svelte';
+	import GlueScaler from '#lib/components/GlueScaler.svelte';
+	import GlueScalerPinch from '#lib/components/GlueScalerPinch.svelte';
 
 	const repo = 'https://github.com/jesssullivan/tinyland-goo/blob/main';
 
@@ -108,13 +108,13 @@
 		wax formulation with peel-force and skin-safety gates.
 	</p>
 	<div class="not-prose mt-4 grid gap-3 md:grid-cols-2">
-		<a class="card block p-4 preset-outlined-surface-500" href={`${base}/chain-wax`}>
+		<a class="card block p-4 preset-outlined-surface-500" href={resolve('/chain-wax')}>
 			<span class="block text-lg font-semibold">Bike chain wax</span>
 			<span class="mt-1 block text-sm text-surface-600 dark:text-surface-400">
 				PFAS-free additive screens, hot immersion, ultrasonic emulsion, and wear methodology.
 			</span>
 		</a>
-		<a class="card block p-4 preset-outlined-surface-500" href={`${base}/hair-removal-wax`}>
+		<a class="card block p-4 preset-outlined-surface-500" href={resolve('/hair-removal-wax')}>
 			<span class="block text-lg font-semibold">Hair removal wax</span>
 			<span class="mt-1 block text-sm text-surface-600 dark:text-surface-400">
 				Rosinate/paraffin hard and strip wax pilots with bench tests and allergy constraints.

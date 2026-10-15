@@ -35,8 +35,8 @@ logic, or runtime API routes. `tinyland.repo.json` records this honestly
 - **Build**: `just build` runs `pnpm run build` (SvelteKit **adapter-static**)
   and emits a fully static, prerendered site in `build/`. `BASE_PATH` sets the
   GitHub Pages project base (`/tinyland-goo`); `just build-local` builds at root.
-- **Check**: `just check` runs `svelte-check` + the Flywheel enrollment
-  contract. `just conformance` runs the 16-item scaffold conformance checklist;
+- **Check**: `just check` runs `svelte-check --tsgo` (TypeScript 7.0.2, RU13),
+  the vitest unit tests and the Flywheel enrollment contract. `just conformance` runs the 16-item scaffold conformance checklist;
   `just scaffold-doctor` adds the authority-boundary audit.
 - **Secrets**: `just secrets-scan-dir` (working tree) / `just secrets-scan`
   (git history) via gitleaks. **Public-safe internal-endpoint scan**:
@@ -63,6 +63,19 @@ container/K8s target; adapter-static → GitHub Pages is the house default for a
 static leaf — no runtime, no edge, no vendor credentials. There is no
 `static/CNAME` (the Pages route is the canonical URL) and `static/.nojekyll` is
 required so `_app/` assets are served.
+
+## Stack pins (RU1/RU5)
+
+- Exact: `@sveltejs/kit` 3.0.1, `svelte` 5.57.2, `vite` 8.3.3, `typescript`
+  7.0.2, `vitest` 5.0.3, `@sveltejs/adapter-static` 4.0.0,
+  `@sveltejs/vite-plugin-svelte` 7.3.1 (site.scaffold estate manifest).
+- SvelteKit 3 has no `svelte.config.js`: the Kit config (adapter, base path,
+  prerender) lives in `sveltekit({...})` in `vite.config.ts`. Import library
+  code as `#lib/...` (package.json `imports`), and build links with
+  `resolve()` from `$app/paths`.
+- TypeScript 7 ships no in-process API. `patches/`, `.pnpmfile.cjs` and the
+  `pnpm` block of `package.json` are the shared RU13 patch set; copy them from
+  site.scaffold `main` and never edit them here (see `patches/README.md`).
 
 ## Theme & Skeleton
 

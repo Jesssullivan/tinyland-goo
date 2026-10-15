@@ -28,12 +28,12 @@ bazel_dep(name = "rules_pkg", version = "1.1.0")
 # JS/TS toolchain (Aspect)
 bazel_dep(name = "rules_nodejs", version = "6.7.3")
 bazel_dep(name = "aspect_rules_js", version = "2.9.1")
-bazel_dep(name = "aspect_rules_ts", version = "3.8.4")
+bazel_dep(name = "aspect_rules_ts", version = "3.10.1")
 bazel_dep(name = "aspect_rules_swc", version = "2.6.1")
 
-# Node 22.13.1
+# Node 22.22.0 (SvelteKit 3 requires Node >= 22.17)
 node = use_extension("@rules_nodejs//nodejs:extensions.bzl", "node")
-node.toolchain(node_version = "22.13.1")
+node.toolchain(node_version = "22.22.0")
 
 # pnpm 10.13.1
 pnpm = use_extension("@aspect_rules_js//npm:extensions.bzl", "pnpm")
@@ -49,17 +49,23 @@ npm.npm_translate_lock(
     name = "npm",
     npmrc = "//:.npmrc",
     pnpm_lock = "//:pnpm-lock.yaml",
+    # RU13 patch set (copied from site.scaffold patches/): npm_translate_lock
+    # applies the pnpm patchedDependencies recorded in pnpm-lock.yaml.
     data = [
+        "//:.pnpmfile.cjs",
         "//:package.json",
+        "//:patches/@sveltejs__kit@3.0.1.patch",
+        "//:patches/devalue@5.9.4.patch",
+        "//:patches/svelte-check@4.7.6.patch",
         "//:pnpm-workspace.yaml",
     ],
 )
 use_repo(npm, "npm")
 
-# TypeScript 5.9.3 (rules_ts cannot parse caret ranges — exact required)
-rules_ts_ext = use_extension("@aspect_rules_ts//ts:extensions.bzl", "ext")
-rules_ts_ext.deps(ts_version = "5.9.3")
-use_repo(rules_ts_ext, "npm_typescript")
+# TypeScript 7.0.2 (RU13), matching package.json `typescript` exactly.
+typescript = use_extension("@aspect_rules_ts//ts:extensions.bzl", "typescript")
+typescript.deps(version = "7.0.2")
+use_repo(typescript, "npm_typescript")
 
 # SWC for any future ts_project targets
 swc = use_extension("@aspect_rules_swc//swc:extensions.bzl", "swc")

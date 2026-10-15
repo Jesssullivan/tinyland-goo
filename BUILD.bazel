@@ -6,6 +6,7 @@ Minimal, toolchain-only. The SvelteKit static site is built by `pnpm run build`
 integrity is provable. The unit-test target + vitest land in a later phase.
 """
 
+load("@aspect_bazel_lib//lib:copy_to_directory.bzl", "copy_to_directory")
 load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_run_binary", "js_test")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@npm//:defs.bzl", "npm_link_all_packages")
@@ -27,9 +28,9 @@ filegroup(
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
-        "svelte.config.js",
         "tsconfig.json",
         "vite.config.ts",
+        "vitest.config.ts",
     ],
 )
 
@@ -39,26 +40,65 @@ js_binary(
     entry_point = "scripts/bazel/run-sveltekit-sync.mjs",
 )
 
+# SvelteKit 3 `svelte-kit sync` writes route types under .svelte-kit and the
+# parent tsconfig plus `$app/types` under node_modules/$app (tsconfig.json
+# extends "$app/tsconfig"); both trees are declared outputs.
 js_run_binary(
     name = "sveltekit_types",
     srcs = [":app_srcs"],
-    out_dirs = [".svelte-kit"],
+    out_dirs = [
+        ".svelte-kit",
+        "node_modules/$app",
+    ],
     tags = ["flywheel-eligible"],
     tool = ":sveltekit_sync_bin",
 )
 
-js_binary(
-    name = "svelte_check_bin",
-    data = [":node_modules"],
-    entry_point = "scripts/bazel/run-svelte-check.mjs",
+# Sources plus the generated SvelteKit types as one declared tree, so the
+# type check can copy it into writable scratch (svelte-check --tsgo writes
+# its transpiled components under .svelte-check).
+copy_to_directory(
+    name = "app_workspace",
+    srcs = [
+        ":app_srcs",
+        ":sveltekit_types",
+    ],
+    hardlink = "off",
+    root_paths = ["."],
 )
 
+# TypeScript 7.0.2 (RU13) checks through svelte-check's native mode (`--tsgo`)
+# on a writable scratch copy of :app_workspace.
 js_test(
     name = "svelte_check_test",
+    args = [
+        "--workspace",
+        "$(rootpath :app_workspace)",
+    ],
     data = [
-        ":app_srcs",
+        ":app_workspace",
         ":node_modules",
-        ":sveltekit_types",
+        "scripts/bazel/prepare-sveltekit-types.mjs",
+    ],
+    entry_point = "scripts/bazel/run-svelte-check.mjs",
+    tags = ["flywheel-eligible"],
+    timeout = "long",
+)
+
+# Seeded-error canary: fails unless svelte-check --tsgo reports a seeded .ts
+# and .svelte type error (a tsconfig that checks nothing reports 0 errors
+# under --tsgo, sveltejs/language-tools#3136).
+js_test(
+    name = "svelte_check_canary_test",
+    args = [
+        "--workspace",
+        "$(rootpath :app_workspace)",
+        "--canary",
+    ],
+    data = [
+        ":app_workspace",
+        ":node_modules",
+        "scripts/bazel/prepare-sveltekit-types.mjs",
     ],
     entry_point = "scripts/bazel/run-svelte-check.mjs",
     tags = ["flywheel-eligible"],
@@ -114,7 +154,7 @@ js_test(
     data = [
         ":app_srcs",
         ":node_modules",
-        ":sveltekit_types",
+        "scripts/bazel/prepare-sveltekit-types.mjs",
     ],
     entry_point = "scripts/bazel/run-sveltekit-vite-build.mjs",
     tags = [
@@ -133,9 +173,10 @@ test_suite(
     # NOT add "manual" — it would drop the members and resolve to zero targets.
     tags = ["flywheel-eligible"],
     tests = [
+        ":svelte_check_canary_test",
         ":svelte_check_test",
-        ":unit_tests",
         ":sveltekit_vite_build_smoke",
+        ":unit_tests",
     ],
 )
 
@@ -145,7 +186,6 @@ exports_files(
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
-        "svelte.config.js",
         "tsconfig.json",
         "vite.config.ts",
     ],

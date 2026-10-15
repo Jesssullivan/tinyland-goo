@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { base } from '$app/paths';
-	import SEOHead from '$lib/components/SEOHead.svelte';
-	import ChainWaxEmulsionScaler from '$lib/components/ChainWaxEmulsionScaler.svelte';
-	import ChainWaxHotMeltScaler from '$lib/components/ChainWaxHotMeltScaler.svelte';
+	import { resolve } from '$app/paths';
+	import SEOHead from '#lib/components/SEOHead.svelte';
+	import ChainWaxEmulsionScaler from '#lib/components/ChainWaxEmulsionScaler.svelte';
+	import ChainWaxHotMeltScaler from '#lib/components/ChainWaxHotMeltScaler.svelte';
 
 	const additiveMap = [
 		{
@@ -273,8 +273,8 @@
 		it is a repeatable path to lower friction, lower wear, cleaner chains, and honest null results.
 	</p>
 	<p class="mt-4 text-sm">
-		<a class="underline" href={`${base}/`}>Back to UV bed glue</a> ·
-		<a class="underline" href={`${base}/hair-removal-wax`}>Hair removal wax track</a>
+		<a class="underline" href={resolve('/')}>Back to UV bed glue</a> ·
+		<a class="underline" href={resolve('/hair-removal-wax')}>Hair removal wax track</a>
 	</p>
 
 	<h2 class="mt-12 text-2xl font-semibold">Working hypothesis</h2>
