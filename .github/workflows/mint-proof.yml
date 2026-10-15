@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Mint gf-reapi-cell token through the public exchange
         env:
           GF_REAPI_TOKEN_EXCHANGE_URL: ${{ vars.GF_REAPI_TOKEN_EXCHANGE_URL }}
