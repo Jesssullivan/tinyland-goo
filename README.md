@@ -94,6 +94,11 @@ gear is the thing to avoid (it chops the high-MW PEO).
 | Combine the phases | cool to <40 °C first — carrier is flammable |
 | Boric stock + phosphor | room temp, added last |
 
+**PVA grade check.** A "100,000 MW PVA" listing is not enough: check its % hydrolysis.
+An 87–89% (partially hydrolyzed) grade dissolves at 45–55 °C. A 98–99%+ (fully
+hydrolyzed) grade needs about 85–90 °C to dissolve; then cool it before the alcohol
+phase goes in.
+
 **Working time**
 
 - Batch shelf life: main ≈ weeks–months sealed; in-a-pinch (uncoated phosphor) ≈ days.
@@ -115,6 +120,71 @@ at rest, use alcohol-safe vessels (glass/HDPE/PP/PTFE).
 UV; glued area glows green, bare bed stays dark. The **AS7341** F4 (515 nm) / F5 (555 nm)
 channels straddle the peak and its filters reject 365 nm, so a single-point read often
 needs no separate filter. Baseline the bare bed once; coverage is the green rise above it.
+
+**The AS7341 path needs no filter**: its on-chip interference filters reject 365 nm.
+Filters only matter for the camera or TSL2591 paths.
+
+### Coverage-sensing BOM
+
+Refreshed 2026-10-19. `~` marks an unverified price or a search snapshot on that date;
+re-check before buying.
+
+**Core**
+
+| Role | Part | Qty | Source | Price |
+| --- | --- | ---: | --- | --- |
+| 365 nm UV-A LED, ~1.45 W radiant flux at 1 A, Risk Group 3 | Nichia NVSU233B U365 | 2, in series | [GroupGets breakout][gg] · [Ledrise bare][ledrise] · DigiKey / Mouser | ~$14 ea (GroupGets) |
+| Constant-current buck driver, 700 mA, PWM / remote on-off | MEAN WELL NLDD-700H | 1 | [Jameco][jameco] · [TRC][trc] | ~$5.50 |
+| Driver supply | 12 V DC, 1 A or more | 1 | any regulated adapter | ~$8–12 |
+| LED heatsink | aluminium heatsink + thermal pad | 1–2 | generic | ~$5 |
+| 11-ch spectral sensor (F4 ≈ 515, F5 ≈ 555 nm) | Adafruit AS7341 #4698 | 1 | [Adafruit][as7341] / DigiKey | $18.95 |
+| Klipper / Moonraker host | Raspberry Pi 5 | 1 | PiShop / DigiKey | ~$80 (likely already owned) |
+
+**Optional and budget swaps**
+
+| Role | Part | Qty | Source | Price |
+| --- | --- | ---: | --- | --- |
+| Single-LED driver alternative | LEDdynamics BuckPuck 3021-D-E-700 | 1 | LEDdynamics | availability unverified |
+| ~495 nm longpass, lab grade | Thorlabs FGL495 | 1 | [Thorlabs][fgl495] | ~$40–50 (unverified) |
+| 520/10 nm bandpass, lab grade | Thorlabs FBH520-10 | 1 | [Thorlabs][fbh520] | ~$100–200 (unverified) |
+| Budget ~495 nm longpass | unbranded GG495-equivalent yellow glass | 1 | Amazon / AliExpress | ~$10–20 (unverified) |
+| Cheap UV shield (enclosure window) | orange UV-blocking acrylic | 1 sheet | Amazon / plastics supplier | ~$10–20 (unverified) |
+| Full-field mono global-shutter camera | Arducam Mira220 MONO (B0526) | 1 | [Arducam][mira220] | $109.99 |
+| Cheaper mono global-shutter camera | Arducam OV9281 1MP mono | 1 | Arducam / Pi Hut | ~$26–36, often out of stock |
+| Camera that takes screw-in filters | Raspberry Pi Global Shutter Camera (IMX296) | 1 | [Raspberry Pi][rpigs] | ~$50 list, $63.75 SparkFun |
+| UV-dose reference | Adafruit LTR-390 #4831 | 1 | DigiKey | $4.50 |
+| Cheap broadband fallback (needs a filter) | Adafruit TSL2591 #1980 | 1 | DigiKey | $6.95 |
+
+Notes:
+
+- **LED.** Replaces the OSRAM / LED Engin LZ1-00UV0R-0000, which is no longer
+  available. Two in series flood the bed more evenly and put ~7.7 V (2 x ~3.85 V
+  typical, GroupGets listing) across the driver, above its minimum output. At 700 mA
+  they run below the 1 A rating. Risk Group 3: enclose, never look into the beam.
+  Verify radiant flux, forward voltage and risk group against the Nichia NVSU233B
+  specification.
+- **Driver.** Replaces the discontinued MEAN WELL LDD-700H. NLDD-700H input 10–56 V,
+  output 6–52 V at 700 mA (distributor data; **verify the 6 V minimum against the Mean
+  Well datasheet**). A 12 V supply gives the buck headroom over the ~7.7 V string
+  (~5.4 W load). For a single LED, use the BuckPuck 3021-D-E-700 instead.
+- **Filters.** Thorlabs FGL495 / FBH520-10 are the lab-grade option (roughly $50 to
+  $200+; the Thorlabs pages did not render for a price fetch on 2026-10-19). The
+  unbranded GG495-equivalent glass is the budget swap: verify its cut-on with the AS7341
+  before trusting it. Orange UV-blocking acrylic is a UV shield, not a measurement filter.
+- **Cameras.** Mira220 MONO is $109.99 at Arducam (not ~$70), libcamera only (Arducam
+  Pivariety driver) with a fixed M12 lens. The OV9281 is the cheaper mono global-shutter
+  option. The Raspberry Pi Global Shutter Camera is colour (IMX296) but C/CS mount, so it
+  takes standard screw-in filters on the lens.
+
+[gg]: https://groupgets.com/products/nvsu233b-u365-high-power-1wuv-led-with-breakout
+[ledrise]: https://www.ledrise.eu/what-s-new/nichia-led-nvsu233b-uv-1450mw-365nm.html
+[jameco]: https://www.jameco.com/z/NLDD-700H-MEAN-WELL-DC-DC-Constant-Current-Step-Down-LED-Driver-700mA-6-52VDC-Output-10-56VDCin-PC-Pins-PWM-Remote-ON-OFF_2319863.html
+[trc]: https://www.trcelectronics.com/products/mean-well-nldd-700h
+[as7341]: https://www.adafruit.com/product/4698
+[fgl495]: https://www.thorlabs.com/thorproduct.cfm?partnumber=FGL495
+[fbh520]: https://www.thorlabs.com/thorproduct.cfm?partnumber=FBH520-10
+[mira220]: https://www.arducam.com/product/arducam-pivariety-camera-2-2mp-mira220-mono-global-shutter-camera-module/
+[rpigs]: https://www.raspberrypi.com/products/raspberry-pi-global-shutter-camera/
 
 ## Bike chain wax research
 
@@ -201,9 +271,17 @@ rosin/colophony allergy and skin trauma.
 - Coated/waterproof powder suppliers — https://www.technoglowproducts.com/strontium-aluminate/ · https://www.gloeffex.com/collections/super-phosphorescent-glow-powder
 - SrAl₂O₄ SDS (no GHS hazard) — https://ltschem.com/msds/SrAl2O4.pdf
 - AS7341 spectral sensor — https://www.adafruit.com/product/4698
-- OSRAM LZ1-00UV0R-0000 (365 nm) — https://www.mouser.com/ProductDetail/LED-Engin/LZ1-00UV0R-0000
-- MEAN WELL LDD-700H driver — https://www.mouser.com/ProductDetail/MEAN-WELL/LDD-700H-WDA
-- Thorlabs FGL495 longpass / FBH520-10 bandpass — https://www.thorlabs.com/
+- Nichia NVSU233B U365 on breakout (GroupGets): https://groupgets.com/products/nvsu233b-u365-high-power-1wuv-led-with-breakout
+- Nichia NVSU233B U365 bare, 1450 mW (Ledrise / Lumitronix): https://www.ledrise.eu/what-s-new/nichia-led-nvsu233b-uv-1450mw-365nm.html
+- MEAN WELL NLDD-700H driver (Jameco): https://www.jameco.com/z/NLDD-700H-MEAN-WELL-DC-DC-Constant-Current-Step-Down-LED-Driver-700mA-6-52VDC-Output-10-56VDCin-PC-Pins-PWM-Remote-ON-OFF_2319863.html
+- MEAN WELL NLDD-700H driver (TRC Electronics): https://www.trcelectronics.com/products/mean-well-nldd-700h
+- Superseded: MEAN WELL LDD-H series (discontinued): https://www.meanwellaustralia.com.au/products/LDD-H · https://www.masterelectronics.com/en/mean-well/ldd700h-43544929.html
+- Superseded: OSRAM / LED Engin LZ1-00UV0R-0000 (unavailable): https://www.mouser.com/ProductDetail/LED-Engin/LZ1-00UV0R-0000
+- Thorlabs FGL495 longpass: https://www.thorlabs.com/thorproduct.cfm?partnumber=FGL495
+- Thorlabs FBH520-10 bandpass: https://www.thorlabs.com/thorproduct.cfm?partnumber=FBH520-10
+- Arducam Mira220 MONO global shutter: https://www.arducam.com/product/arducam-pivariety-camera-2-2mp-mira220-mono-global-shutter-camera-module/
+- Raspberry Pi Global Shutter Camera (IMX296): https://www.raspberrypi.com/products/raspberry-pi-global-shutter-camera/
+- Raspberry Pi Global Shutter Camera at SparkFun ($63.75, 2026-10-19): https://www.sparkfun.com/raspberry-pi-global-shutter-camera.html
 - Klipper Command Templates (`action_raise_error`, `save_variables`) — https://www.klipper3d.org/Command_Templates.html
 - `gcode_shell_command` (KIAUH) — https://github.com/dw-0/kiauh/blob/master/docs/gcode_shell_command.md
 

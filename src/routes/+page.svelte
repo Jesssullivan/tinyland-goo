@@ -6,73 +6,192 @@
 
 	const repo = 'https://github.com/jesssullivan/tinyland-goo/blob/main';
 
-	// Verified, currently-purchasable BOM. Core = the minimum to gate a print;
-	// optional = upgrades (full-field imaging, UV-dose normalization, fallback).
-	const bomCore = [
+	// Coverage-sensing BOM, refreshed 2026-10-19. Prices marked "~" are
+	// unverified or search snapshots dated in `checked`; re-check before buying.
+	// Core = the minimum to gate a print; optional = upgrades and budget swaps.
+	type BomRow = {
+		role: string;
+		part: string;
+		mfr: string;
+		qty: string;
+		src: { label: string; url: string }[];
+		price: string;
+		note?: string;
+	};
+
+	const checked = '2026-10-19';
+
+	const bomCore: BomRow[] = [
 		{
-			role: '365 nm UV-A LED',
-			part: 'LZ1-00UV0R-0000',
-			mfr: 'OSRAM / LED Engin',
-			src: 'Mouser',
-			price: '~$20'
+			role: '365 nm UV-A LED, about 1.45 W radiant flux at 1 A, Risk Group 3',
+			part: 'NVSU233B U365',
+			mfr: 'Nichia',
+			qty: '2 (series)',
+			src: [
+				{
+					label: 'GroupGets (on breakout)',
+					url: 'https://groupgets.com/products/nvsu233b-u365-high-power-1wuv-led-with-breakout'
+				},
+				{
+					label: 'Ledrise (bare)',
+					url: 'https://www.ledrise.eu/what-s-new/nichia-led-nvsu233b-uv-1450mw-365nm.html'
+				},
+				{ label: 'DigiKey', url: 'https://www.digikey.com/en/products/result?keywords=NVSU233B%20U365' },
+				{ label: 'Mouser', url: 'https://www.mouser.com/c/?q=NVSU233B%20U365' }
+			],
+			price: '~$14 ea',
+			note: 'Two in series give an even bed flood and about 7.7 V forward, above the driver minimum. Replaces the unavailable OSRAM / LED Engin LZ1-00UV0R-0000.'
 		},
 		{
-			role: 'Constant-current driver (700 mA)',
-			part: 'LDD-700H',
+			role: 'Constant-current buck driver, 700 mA, PWM / remote on-off',
+			part: 'NLDD-700H',
 			mfr: 'MEAN WELL',
-			src: 'Mouser / DigiKey',
-			price: '~$6'
+			qty: '1',
+			src: [
+				{
+					label: 'Jameco',
+					url: 'https://www.jameco.com/z/NLDD-700H-MEAN-WELL-DC-DC-Constant-Current-Step-Down-LED-Driver-700mA-6-52VDC-Output-10-56VDCin-PC-Pins-PWM-Remote-ON-OFF_2319863.html'
+				},
+				{ label: 'TRC', url: 'https://www.trcelectronics.com/products/mean-well-nldd-700h' }
+			],
+			price: '~$5.50',
+			note: 'Input 10-56 V, output 6-52 V (distributor data; verify the 6 V minimum against the Mean Well datasheet). Replaces the discontinued LDD-700H.'
 		},
 		{
-			role: '11-ch spectral sensor (F4≈515, F5≈555 nm)',
+			role: 'Driver supply',
+			part: '12 V DC, 1 A or more',
+			mfr: 'any regulated wall adapter',
+			qty: '1',
+			src: [{ label: 'any', url: 'https://www.digikey.com/en/products/result?keywords=12V%20wall%20adapter' }],
+			price: '~$8-12',
+			note: 'About 5.4 W of LED load (7.7 V x 0.7 A); 12 V leaves the buck driver headroom.'
+		},
+		{
+			role: 'LED heatsink',
+			part: 'aluminium heatsink + thermal pad',
+			mfr: 'generic',
+			qty: '1-2',
+			src: [{ label: 'any', url: 'https://www.digikey.com/en/products/result?keywords=LED%20heatsink' }],
+			price: '~$5',
+			note: 'About 2.7 W per LED at 700 mA; never run them unmounted.'
+		},
+		{
+			role: '11-ch spectral sensor (F4≈515, F5≈555 nm), no filter needed',
 			part: 'AS7341 breakout #4698',
 			mfr: 'Adafruit',
-			src: 'DigiKey',
+			qty: '1',
+			src: [{ label: 'Adafruit / DigiKey', url: 'https://www.adafruit.com/product/4698' }],
 			price: '$18.95'
 		},
 		{
 			role: 'Klipper / Moonraker host (I2C + CSI)',
 			part: 'Raspberry Pi 5',
 			mfr: 'Raspberry Pi',
-			src: 'PiShop / DigiKey',
+			qty: '1',
+			src: [{ label: 'PiShop / DigiKey', url: 'https://www.raspberrypi.com/products/raspberry-pi-5/' }],
 			price: '~$80*'
 		}
 	];
 
-	const bomOptional = [
+	const bomOptional: BomRow[] = [
 		{
-			role: '~500 nm green longpass (UV block for camera/TSL2591)',
-			part: 'FGL495',
-			mfr: 'Thorlabs',
-			src: 'Thorlabs',
-			price: '~$35'
+			role: 'Single-LED driver alternative',
+			part: 'BuckPuck 3021-D-E-700',
+			mfr: 'LEDdynamics',
+			qty: '1',
+			src: [{ label: 'LEDdynamics', url: 'https://www.leddynamics.com/' }],
+			price: '~? (unverified)',
+			note: 'For one LED only, where the NLDD minimum output voltage is too high. Availability unverified.'
 		},
 		{
-			role: '520/10 nm bandpass (max selectivity)',
+			role: '~495 nm longpass, lab grade (camera / TSL2591 only)',
+			part: 'FGL495',
+			mfr: 'Thorlabs',
+			qty: '1',
+			src: [{ label: 'Thorlabs', url: 'https://www.thorlabs.com/thorproduct.cfm?partnumber=FGL495' }],
+			price: '~$40-50',
+			note: 'Price unverified: the Thorlabs page did not render for a fetch on 2026-10-19.'
+		},
+		{
+			role: '520/10 nm bandpass, lab grade (max selectivity)',
 			part: 'FBH520-10',
 			mfr: 'Thorlabs',
-			src: 'Thorlabs',
-			price: '~$95'
+			qty: '1',
+			src: [{ label: 'Thorlabs', url: 'https://www.thorlabs.com/thorproduct.cfm?partnumber=FBH520-10' }],
+			price: '~$100-200',
+			note: 'Price unverified: the Thorlabs page did not render for a fetch on 2026-10-19.'
+		},
+		{
+			role: 'Budget ~495 nm longpass (Schott GG495 equivalent)',
+			part: 'GG495 yellow glass',
+			mfr: 'unbranded',
+			qty: '1',
+			src: [
+				{ label: 'Amazon', url: 'https://www.amazon.com/s?k=GG495+longpass+filter' },
+				{ label: 'AliExpress', url: 'https://www.aliexpress.us/w/wholesale-GG495-filter.html' }
+			],
+			price: '~$10-20',
+			note: 'Unbranded: verify the cut-on against the AS7341 (or a known 365 nm source) before trusting it.'
+		},
+		{
+			role: 'Cheap UV shield (enclosure window, not a measurement filter)',
+			part: 'orange UV-blocking acrylic',
+			mfr: 'generic',
+			qty: '1 sheet',
+			src: [{ label: 'Amazon', url: 'https://www.amazon.com/s?k=orange+UV+blocking+acrylic+sheet' }],
+			price: '~$10-20'
 		},
 		{
 			role: 'Full-field mono global-shutter camera',
-			part: 'Mira220 MONO',
+			part: 'Mira220 MONO (B0526)',
 			mfr: 'Arducam',
-			src: 'Arducam / Pi Hut',
-			price: '~$70'
+			qty: '1',
+			src: [
+				{
+					label: 'Arducam',
+					url: 'https://www.arducam.com/product/arducam-pivariety-camera-2-2mp-mira220-mono-global-shutter-camera-module/'
+				}
+			],
+			price: '$109.99',
+			note: 'libcamera only (Arducam Pivariety driver), fixed M12 lens.'
+		},
+		{
+			role: 'Cheaper mono global-shutter camera',
+			part: 'OV9281 1MP mono',
+			mfr: 'Arducam',
+			qty: '1',
+			src: [{ label: 'Arducam', url: 'https://www.arducam.com/?s=OV9281' }],
+			price: '~$26-36',
+			note: 'Price varies by lens variant; often out of stock (search snapshot 2026-10-19).'
+		},
+		{
+			role: 'Camera that takes standard screw-in filters',
+			part: 'Global Shutter Camera (IMX296)',
+			mfr: 'Raspberry Pi',
+			qty: '1',
+			src: [
+				{
+					label: 'Raspberry Pi',
+					url: 'https://www.raspberrypi.com/products/raspberry-pi-global-shutter-camera/'
+				}
+			],
+			price: '~$50-64',
+			note: 'Colour sensor, C/CS mount, lens sold separately; $50 launch price, $63.75 at SparkFun (2026-10-19).'
 		},
 		{
 			role: 'UV-dose reference (aging/normalization)',
 			part: 'LTR-390 #4831',
 			mfr: 'Adafruit',
-			src: 'DigiKey',
+			qty: '1',
+			src: [{ label: 'Adafruit / DigiKey', url: 'https://www.adafruit.com/product/4831' }],
 			price: '$4.50'
 		},
 		{
 			role: 'Cheap broadband fallback (needs a filter)',
 			part: 'TSL2591 #1980',
 			mfr: 'Adafruit',
-			src: 'DigiKey',
+			qty: '1',
+			src: [{ label: 'Adafruit / DigiKey', url: 'https://www.adafruit.com/product/1980' }],
 			price: '$6.95'
 		}
 	];
@@ -247,6 +366,12 @@
 		</table>
 		<p class="mt-1 text-xs text-surface-500">Mix away from open flame.</p>
 	</div>
+	<p class="mt-3">
+		<strong>Check your PVA grade.</strong> A listing that only says “100,000&nbsp;MW PVA” is not
+		enough: look up its % hydrolysis. A partially hydrolyzed 87–89% grade dissolves at
+		45–55&nbsp;°C. A fully hydrolyzed 98–99%+ grade needs about 85–90&nbsp;°C to dissolve, then
+		cool it before the alcohol phase goes in.
+	</p>
 
 	<h3 class="mt-8 text-xl font-semibold">Working time</h3>
 	<ul class="mt-3 list-disc space-y-2 pl-6">
@@ -303,6 +428,22 @@
 		charge). For a one-shot whole-bed heatmap, image it instead with a mono global-shutter camera
 		behind a ~500&nbsp;nm longpass.
 	</p>
+	<p class="mt-3">
+		<strong>The AS7341 path needs no filter.</strong> Its on-chip interference filters already
+		reject 365&nbsp;nm, so a longpass only matters for the camera or TSL2591 paths. There, the
+		Thorlabs glass is the lab-grade option (roughly $50 to $200+); an unbranded GG495-equivalent
+		yellow longpass (~$10–20) is the budget swap, but check its cut-on with the AS7341 before
+		trusting it. Orange UV-blocking acrylic is a cheap UV shield for the enclosure window, not a
+		measurement filter.
+	</p>
+	<p class="mt-3">
+		<strong>Light source.</strong> Two Nichia NVSU233B U365 LEDs in series on one MEAN WELL
+		NLDD-700H: two emitters flood the bed more evenly, and their ~7.7&nbsp;V combined forward
+		voltage sits above the driver’s 6&nbsp;V minimum output (distributor figure; verify against
+		the Mean Well datasheet). At 700&nbsp;mA they run below their 1&nbsp;A rating. Each is Risk
+		Group&nbsp;3 under IEC&nbsp;62471: enclose them and never look into the beam. For a single LED,
+		use a LEDdynamics BuckPuck 3021-D-E-700 instead (availability unverified).
+	</p>
 
 	<h3 class="mt-8 text-xl font-semibold">Core BOM</h3>
 	<div class="not-prose my-4 overflow-x-auto">
@@ -311,6 +452,7 @@
 				<tr class="text-left text-surface-600 dark:text-surface-400">
 					<th class="py-1 pr-3 font-medium">Role</th>
 					<th class="py-1 pr-3 font-medium">Part</th>
+					<th class="py-1 pr-3 font-medium">Qty</th>
 					<th class="py-1 pr-3 font-medium">Source</th>
 					<th class="py-1 font-medium">~Price</th>
 				</tr>
@@ -318,15 +460,24 @@
 			<tbody>
 				{#each bomCore as p (p.part)}
 					<tr class="border-t border-surface-300 dark:border-surface-700">
-						<td class="py-1 pr-3">{p.role}</td>
+						<td class="py-1 pr-3">
+							{p.role}
+							{#if p.note}<span class="block text-xs text-surface-500">{p.note}</span>{/if}
+						</td>
 						<td class="py-1 pr-3 font-mono">{p.part}<span class="block text-xs text-surface-500">{p.mfr}</span></td>
-						<td class="py-1 pr-3">{p.src}</td>
+						<td class="whitespace-nowrap py-1 pr-3">{p.qty}</td>
+						<td class="py-1 pr-3">
+							{#each p.src as s, i (s.url)}{#if i > 0} · {/if}<a class="underline" href={s.url}>{s.label}</a>{/each}
+						</td>
 						<td class="whitespace-nowrap py-1 font-mono">{p.price}</td>
 					</tr>
 				{/each}
 			</tbody>
 		</table>
-		<p class="mt-1 text-xs text-surface-500">* The Pi is almost certainly already your Klipper host.</p>
+		<p class="mt-1 text-xs text-surface-500">
+			* The Pi is almost certainly already your Klipper host. Prices checked {checked}; “~” marks an
+			unverified price or a search snapshot.
+		</p>
 	</div>
 
 	<h3 class="mt-8 text-xl font-semibold">Optional upgrades</h3>
@@ -336,6 +487,7 @@
 				<tr class="text-left text-surface-600 dark:text-surface-400">
 					<th class="py-1 pr-3 font-medium">Role</th>
 					<th class="py-1 pr-3 font-medium">Part</th>
+					<th class="py-1 pr-3 font-medium">Qty</th>
 					<th class="py-1 pr-3 font-medium">Source</th>
 					<th class="py-1 font-medium">~Price</th>
 				</tr>
@@ -343,9 +495,15 @@
 			<tbody>
 				{#each bomOptional as p (p.part)}
 					<tr class="border-t border-surface-300 dark:border-surface-700">
-						<td class="py-1 pr-3">{p.role}</td>
+						<td class="py-1 pr-3">
+							{p.role}
+							{#if p.note}<span class="block text-xs text-surface-500">{p.note}</span>{/if}
+						</td>
 						<td class="py-1 pr-3 font-mono">{p.part}<span class="block text-xs text-surface-500">{p.mfr}</span></td>
-						<td class="py-1 pr-3">{p.src}</td>
+						<td class="whitespace-nowrap py-1 pr-3">{p.qty}</td>
+						<td class="py-1 pr-3">
+							{#each p.src as s, i (s.url)}{#if i > 0} · {/if}<a class="underline" href={s.url}>{s.label}</a>{/each}
+						</td>
 						<td class="whitespace-nowrap py-1 font-mono">{p.price}</td>
 					</tr>
 				{/each}
@@ -386,7 +544,9 @@ gcode:
 	<p class="mt-3 text-sm text-surface-600 dark:text-surface-400">
 		Frank’s Instagoo · DrGhetto/Hackaday Super Goop · PVP K30↔K90 (ULI Polymer) · PVP/PEG
 		tack (Feldstein et&nbsp;al.) · boric-acid/PVA crosslink (IOP) · strontium-aluminate
-		hydrolysis + encapsulation (ScienceDirect; Wikipedia) · AS7341 (AMS/Adafruit) · Klipper
+		hydrolysis + encapsulation (ScienceDirect; Wikipedia) · AS7341 (AMS/Adafruit) · Nichia
+		NVSU233B (GroupGets, Ledrise) · MEAN WELL NLDD-700H (Jameco) · Arducam and Raspberry Pi
+		cameras · Klipper
 		Command Templates + <code>gcode_shell_command</code> (KIAUH). Full citation list in the
 		<a class="underline" href="https://github.com/jesssullivan/tinyland-goo">repo README</a>.
 	</p>
