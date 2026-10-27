@@ -130,13 +130,16 @@ scan-endpoints:
 # Bazel (toolchain-only module-graph integrity proof; site build stays pnpm)
 # ─────────────────────────────────────────────
 
+# Local, non-qualifying graph proofs. They run one-shot with --batch, so no
+# Bazel server stays resident after the command (TIN-5770 R472).
+
 # Prove the dependency/toolchain module graph resolves (gated/optional in CI)
 bazel-graph:
-    cd {{ root }} && bazelisk mod graph
+    cd {{ root }} && bazelisk --batch mod graph
 
 # Fail if MODULE.bazel.lock drifts from MODULE.bazel + the pinned registry
 bazel-lock-verify:
-    cd {{ root }} && bazelisk mod graph --lockfile_mode=error >/dev/null && echo "MODULE.bazel.lock in sync"
+    cd {{ root }} && bazelisk --batch mod graph --lockfile_mode=error >/dev/null && echo "MODULE.bazel.lock in sync"
 
 # ─────────────────────────────────────────────
 # GloriousFlywheel (cache-first; executor opt-in). DORMANT on this personal

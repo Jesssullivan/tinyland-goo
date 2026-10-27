@@ -28,7 +28,7 @@ run_case() {
   fi
 }
 
-CACHE="grpcs://cache.example.internal:9092"
+CACHE="grpcs://cache.example.internal:443"
 EXECUTOR="grpcs://executor.example.internal:8980"
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT

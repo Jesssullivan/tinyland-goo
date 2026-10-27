@@ -17,7 +17,7 @@
 # Remote cache behavior. The wrapper/action supplies --remote_cache and upload
 # policy after validating BAZEL_REMOTE_CACHE and GF_BAZEL_REMOTE_UPLOAD.
 common:flywheel --remote_upload_local_results=false
-common:flywheel --remote_local_fallback
+common:flywheel --remote_local_fallback=false
 common:flywheel --remote_timeout=60
 
 # Remote executor behavior. The wrapper/action supplies --remote_executor only

@@ -6,6 +6,10 @@
 # lock re-cut, not a consumer-side sha-pin; pin a sha only if drift actually
 # bites. The site build remains `pnpm run build`; Bazel is module-graph proof.
 
+# Bound the client server (TIN-5770 R470). An idle server exits after 120 s
+# instead of the 3 h default. A later rc or a command-line flag can override it.
+startup --max_idle_secs=120
+
 common --enable_bzlmod
 common --registry=https://raw.githubusercontent.com/tinyland-inc/bazel-registry/main/
 common --registry=https://bcr.bazel.build
